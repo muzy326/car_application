@@ -1,0 +1,168 @@
+<div class="container mt-5">
+
+  <h2 class="text-center fw-bold mb-5">🚗 My Bookings</h2>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row mb-5">
+
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow border-0">
+        <div class="card-body">
+          <h5 class="card-title text-muted">Total Bookings</h5>
+          <h1 class="display-5">📊 {{ totalBookings }}</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow border-success">
+        <div class="card-body">
+          <h5 class="card-title text-success">Current Booking</h5>
+          <h1 class="display-5">🚘 {{ totalCurrent }}</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow border-secondary">
+        <div class="card-body">
+          <h5 class="card-title text-secondary">Booking History</h5>
+          <h1 class="display-5">📁 {{ totalHistory }}</h1>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CURRENT BOOKINGS -->
+  <div class="mb-5">
+
+    <h4 class="mb-3">🚘 Current Booking</h4>
+
+    <div *ngIf="currentBooking.length === 0" class="alert alert-info">
+      No active booking.
+    </div>
+
+    <div *ngIf="currentBooking.length > 0" class="table-responsive">
+
+      <table class="table table-hover table-striped align-middle shadow-sm">
+
+        <thead class="table-dark">
+          <tr>
+            <th>Car Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th width="120">Bill</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let b of currentBooking">
+
+            <td class="fw-semibold">
+              {{ b.carname || b.carId }}
+            </td>
+
+            <td>
+              {{ b.startDate ? (b.startDate | date:'mediumDate') : '-' }}
+            </td>
+
+            <td>
+              {{ b.endDate ? (b.endDate | date:'mediumDate') : '-' }}
+            </td>
+
+            <td>
+              <span class="badge"
+                [ngClass]="{
+                  'bg-success': b.status === 'Confirmed',
+                  'bg-warning text-dark': b.status === 'Pending',
+                  'bg-danger': b.status === 'Cancelled'
+                }">
+                {{ b.status || 'Pending' }}
+              </span>
+            </td>
+
+            <td>
+              <a class="btn btn-sm btn-primary"
+                 [routerLink]="['/booking-bill', b.id]">
+                 View Bill
+              </a>
+            </td>
+
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- BOOKING HISTORY -->
+  <div class="mb-4">
+
+    <h4 class="mb-3">📁 Booking History</h4>
+
+    <div *ngIf="history.length === 0" class="alert alert-secondary">
+      No past bookings.
+    </div>
+
+    <div *ngIf="history.length > 0" class="table-responsive">
+
+      <table class="table table-hover table-bordered align-middle shadow-sm">
+
+        <thead class="table-dark">
+          <tr>
+            <th>Car Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th width="120">Bill</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let b of history">
+
+            <td class="fw-semibold">
+              {{ b.carname || b.carId }}
+            </td>
+
+            <td>
+              {{ b.startDate ? (b.startDate | date:'mediumDate') : '-' }}
+            </td>
+
+            <td>
+              {{ b.endDate ? (b.endDate | date:'mediumDate') : '-' }}
+            </td>
+
+            <td>
+              <span class="badge"
+                [ngClass]="{
+                  'bg-success': b.status === 'Confirmed',
+                  'bg-warning text-dark': b.status === 'Pending',
+                  'bg-danger': b.status === 'Cancelled'
+                }">
+                {{ b.status || 'Pending' }}
+              </span>
+            </td>
+
+            <td>
+              <a class="btn btn-sm btn-primary"
+                 [routerLink]="['/booking-bill', b.id]">
+                 View Bill
+              </a>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+
+</div>

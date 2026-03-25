@@ -1,0 +1,48 @@
+<div class="container mt-5">
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Loading car details...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error && !loading" class="alert alert-danger text-center">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Car Details + Booking Form -->
+  <div *ngIf="!loading && car" class="row shadow p-4 rounded bg-light">
+
+    <!-- Car Image -->
+    <div class="col-md-6 text-center">
+      <img 
+        [src]="car.imageUrl || 'https://via.placeholder.com/400x200'" 
+        class="img-fluid rounded"
+        [alt]="car.carname"
+        onerror="this.src='https://via.placeholder.com/400x200'"
+      >
+    </div>
+
+    <!-- Car Info + Booking -->
+    <div class="col-md-6">
+      <h2 class="fw-bold">{{ car.carname }}</h2>
+      <h4 class="text-success">$ {{ car.price }} / day</h4>
+
+      <p *ngIf="!car.available" class="text-danger fw-bold">
+        This car is currently not available.
+      </p>
+      <p *ngIf="car.available" class="text-success fw-bold">
+        Available for booking
+      </p>
+
+      <!-- Booking Form embedded -->
+      <app-booking-form [car]="car"></app-booking-form>
+
+      <button routerLink="/cars" class="btn btn-secondary mt-3">
+        Back to Cars
+      </button>
+    </div>
+
+  </div>
+</div>

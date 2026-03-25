@@ -1,0 +1,101 @@
+<main class="flex-fill d-flex justify-content-center align-items-center">
+  <div class="card shadow-sm mb-3" style="max-width: 700px;">
+  
+<div class="container mt-5 d-flex justify-content-center">
+  <div class="card shadow-sm mb-3" style="max-width: 700px;">
+    <div class="row g-0">
+
+      <!-- Left Image -->
+      <div class="col-md-4 d-flex align-items-center justify-content-center bg-light">
+        <img src="/assets/Registration2.jpg" class="img-fluid rounded-start p-3" alt="Registration Image">
+      </div>
+
+      <!-- Form -->
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-4">Create Account</h5>
+          <p class="card-text text-center text-muted mb-4">
+            Join our platform and book your dream car today!
+          </p>
+
+          <form #regForm="ngForm" (ngSubmit)="register(regForm)">
+
+            <!-- First Name -->
+            <div class="mb-3">
+              <input type="text" class="form-control" name="firstname" placeholder="First Name"
+                     [(ngModel)]="userModel.firstname" required #fName="ngModel">
+              <div *ngIf="fName.invalid && fName.touched" class="text-danger small mt-1">
+                First name is required.
+              </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="mb-3">
+              <input type="text" class="form-control" name="lastname" placeholder="Last Name"
+                     [(ngModel)]="userModel.lastname" required #lName="ngModel">
+              <div *ngIf="lName.invalid && lName.touched" class="text-danger small mt-1">
+                Last name is required.
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <input type="email" class="form-control" name="email" placeholder="Email"
+                     [(ngModel)]="userModel.email" required email #email="ngModel">
+              <div *ngIf="email.invalid && email.touched" class="text-danger small mt-1">
+                <div *ngIf="email.errors?.['required']">Email is required.</div>
+                <div *ngIf="email.errors?.['email']">Enter a valid email.</div>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <input type="password" class="form-control" name="password" placeholder="Password"
+                     [(ngModel)]="userModel.password" required minlength="6" #pass="ngModel">
+              <div *ngIf="pass.invalid && pass.touched" class="text-danger small mt-1">
+                <div *ngIf="pass.errors?.['required']">Password is required.</div>
+                <div *ngIf="pass.errors?.['minlength']">Minimum 6 characters required.</div>
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+              <input type="password" class="form-control" name="confirmPassword" placeholder="Confirm Password"
+                     [(ngModel)]="userModel.confirmPassword" required #cPass="ngModel">
+              <div *ngIf="(cPass.touched && cPass.invalid) || (userModel.password !== userModel.confirmPassword && cPass.touched)" 
+                   class="text-danger small mt-1">
+                Passwords do not match.
+              </div>
+            </div>
+
+            <!-- reCAPTCHA -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" name="recaptcha" [(ngModel)]="userModel.recaptcha" required #recap="ngModel">
+              <label class="form-check-label">I'm not a robot</label>
+              <div *ngIf="recap.invalid && recap.touched" class="text-danger small mt-1">
+                Please confirm you are not a robot.
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary" [disabled]="regForm.invalid || loading">
+                {{ loading ? 'Registering...' : 'REGISTER' }}
+              </button>
+            </div>
+
+            <!-- Login Link -->
+            <p class="text-center mt-3 text-muted">
+              Already have an account? <a [routerLink]="['/login']">Login here</a>
+            </p>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+ </div>
+</main>

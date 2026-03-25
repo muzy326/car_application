@@ -1,0 +1,61 @@
+
+<button 
+  class="chat-btn btn btn-primary rounded-circle shadow"
+  (click)="toggleChat()">
+
+  <i 
+    class="fs-4" 
+    [ngClass]="minimized ? 'bi bi-chat-dots-fill' : 'bi bi-x-lg'">
+  </i>
+
+  <!-- Notification Badge -->
+  <span *ngIf="unreadCount > 0" class="badge bg-danger chat-badge">
+    {{ unreadCount }}
+  </span>
+
+</button>
+<div *ngIf="!minimized" 
+     class="card shadow chat-window">
+<!-- Chat Window -->
+<div *ngIf="!minimized" class="card shadow fixed-bottom me-3 mb-5" style="width: 350px; height: 500px; z-index: 1000; right: 0;">
+  
+  <!-- Header -->
+  <div class="card-header bg-primary text-white text-center">
+    AI Assistant
+  </div>
+
+  <!-- Chat Body -->
+  <div #chatBody class="card-body overflow-auto" style="height: 350px;">
+    <div *ngFor="let msg of messages">
+      
+      <!-- User Message -->
+      <div *ngIf="msg.from === 'user'" class="text-end mb-2">
+        <span class="badge bg-primary p-2">
+          {{ msg.text }}
+        </span>
+      </div>
+
+      <!-- Bot Message -->
+      <div *ngIf="msg.from === 'bot'" class="text-start mb-2">
+        <span class="badge bg-secondary p-2">
+          {{ msg.text }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="card-footer d-flex">
+    <input 
+      [(ngModel)]="userInput" 
+      (keyup.enter)="sendMessage()"
+      class="form-control me-2" 
+      placeholder="Ask something..." />
+
+    <button class="btn btn-primary" (click)="sendMessage()">
+      Send
+    </button>
+  </div>
+
+</div>

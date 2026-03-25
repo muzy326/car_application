@@ -1,12 +1,14 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { NavBarComponent } from './components/nav-bar/nav-bar';
+import { FooterComponent } from './components/footer/footer';
+import { ChatbotComponent } from "./components/chatbot/chatbot";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterModule, NavBarComponent, FooterComponent, ChatbotComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css'] // optional
 })
-export class App {
-  protected readonly title = signal('car-application');
-}
+export class AppComponent {}
