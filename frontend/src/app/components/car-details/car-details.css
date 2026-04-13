@@ -1,0 +1,27 @@
+.car-card-bg {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.car-image-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.car-image-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.ribbon {
+  position: absolute;
+  top: 15px;
+  left: -5px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.bi-star, .bi-star-fill {
+  font-size: 1.2rem;
+}

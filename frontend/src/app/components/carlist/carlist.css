@@ -1,0 +1,25 @@
+.car-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fefefe, #f7f7f7);
+  position: relative;
+}
+
+.ribbon {
+  position: absolute;
+  top: 12px;
+  left: -5px;
+  background: red;
+  color: white;
+  padding: 5px 12px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transform: rotate(-45deg);
+  z-index: 10;
+}
+
+.star-rating i {
+  margin-right: 2px;
+  font-size: 0.9rem;
+}

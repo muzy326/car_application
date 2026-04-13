@@ -1,0 +1,48 @@
+services:
+  # ------------------ DATABASE ------------------
+  db:
+    image: postgres:15
+    container_name: car_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Mujeeba123@
+      POSTGRES_DB: car_application
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # ------------------ BACKEND (Node.js + Express) ------------------
+  backend:
+    build: ./server
+    container_name: car_backend
+    restart: always
+    command: node index.js   # ✅ FIX: force backend to start server
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: Mujeeba123@
+      DB_NAME: car_application
+      DB_PORT: 5432
+      JWT_SECRET: super_secure_secret_key_for_car_app_12345
+      FRONTEND_URL: http://localhost:4200
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  # ------------------ FRONTEND (Angular + Nginx) ------------------
+  frontend:
+    build: ./frontend
+    container_name: car_frontend
+    restart: always
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+# ------------------ VOLUMES ------------------
+volumes:
+  db_data:

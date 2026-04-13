@@ -1,0 +1,19 @@
+.chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1100;
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+}
+
+.chat-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+.chat-window {
+  transition: all 0.3s ease;
+}

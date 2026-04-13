@@ -1,0 +1,58 @@
+<div class="container mt-5">
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Loading car details...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error && !loading" class="alert alert-danger text-center">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Car Details -->
+  <div *ngIf="!loading && car" class="row shadow p-4 rounded bg-light">
+
+    <!-- Car Image -->
+    <div class="col-md-6 text-center">
+      <img
+        [src]="car.imageUrl || fallbackImage"
+        (error)="onImageError($event)"
+        class="img-fluid rounded"
+        alt="{{ car.carname }}"
+      />
+      <div *ngIf="car.discount && car.discount > 0" class="ribbon bg-danger text-white">
+        -{{ car.discount }}%
+      </div>
+      <!-- Star Ratings -->
+      <div class="mt-2">
+        <ng-container *ngFor="let filled of getStars(car.rating ?? 0); let i = index">
+          <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
+        </ng-container>
+        <span class="ms-2">({{ car.rating }}/5)</span>
+      </div>
+    </div>
+
+    <!-- Car Info + Booking -->
+    <div class="col-md-6">
+      <h2 class="fw-bold">{{ car.carname }}</h2>
+      <h4 class="text-success">$ {{ car.price }} / day</h4>
+
+      <p *ngIf="!car.available" class="text-danger fw-bold">
+        This car is currently not available.
+      </p>
+      <p *ngIf="car.available" class="text-success fw-bold">
+        Available for booking
+      </p>
+
+      <!-- Booking Form -->
+      <app-booking-form [car]="car"></app-booking-form>
+
+      <button routerLink="/cars" class="btn btn-secondary mt-3">
+        Back to Cars
+      </button>
+    </div>
+
+  </div>
+</div>

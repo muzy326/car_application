@@ -1,0 +1,91 @@
+<div class="card p-3">
+
+  <!-- New Car Button -->
+  <div class="text-end mb-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#carModal" (click)="resetForm(carForm)">
+      New Car
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-3">
+    <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (keyup)="filterCars()">
+  </div>
+
+  <!-- Car Table -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="bg-light">
+        <tr>
+          <th>#</th><th>Name</th><th>Price</th><th>Description</th><th>Type</th><th>Status</th><th>Rating</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let car of pagedCars">
+          <td><img [src]="car.imageUrl || 'assets/no-image.jpg'" width="40" height="40" class="rounded-circle"></td>
+          <td>{{ car.carname }}</td>
+          <td>${{ car.price }}</td>
+          <td>{{ car.description }}</td>
+          <td>{{ car.type }}</td>
+          <td><span class="badge" [ngClass]="car.available ? 'bg-success' : 'bg-danger'">{{ car.available ? 'Available' : 'Not Available' }}</span></td>
+          <td>
+            <ng-container *ngFor="let filled of getStarsArray(car.rating)">
+              <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
+            </ng-container>
+          </td>
+          <td>
+            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#carModal" (click)="editCar(car)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteCar(car.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between align-items-center mt-2">
+    <div>
+      <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="p===1">Prev</button>
+      <span>{{p}} / {{totalPages}}</span>
+      <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="p===totalPages">Next</button>
+    </div>
+    <div>
+      <select class="form-select" style="width:auto" [(ngModel)]="itemsPerPage">
+        <option [ngValue]="2">2 items</option>
+        <option [ngValue]="4">4 items</option>
+        <option [ngValue]="6">6 items</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Car Modal -->
+  <div class="modal fade" id="carModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ editingCarId ? 'Edit Car' : 'New Car' }}</h5>
+          <button #carModalClose class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form #carForm="ngForm" (ngSubmit)="saveCar(carForm)">
+            <input type="text" name="carname" class="form-control mb-3" placeholder="Car Name" [(ngModel)]="carModel.carname" required>
+            <input type="number" name="price" class="form-control mb-3" placeholder="Price" [(ngModel)]="carModel.price" required min="1">
+            <input type="text" name="description" class="form-control mb-3" placeholder="Description" [(ngModel)]="carModel.description">
+            <input type="text" name="imageUrl" class="form-control mb-3" placeholder="Image URL" [(ngModel)]="carModel.imageUrl">
+            <input type="text" name="type" class="form-control mb-3" placeholder="Type (SUV, Hybrid, etc.)" [(ngModel)]="carModel.type">
+            <input type="number" name="rating" class="form-control mb-3" placeholder="Rating 1-5" [(ngModel)]="carModel.rating" min="1" max="5">
+            <div class="form-check mb-3">
+              <input type="checkbox" class="form-check-input" name="available" [(ngModel)]="carModel.available" id="availableCheck">
+              <label class="form-check-label" for="availableCheck">Available</label>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" [disabled]="carForm.invalid">{{ editingCarId ? 'Update Car' : 'Add Car' }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

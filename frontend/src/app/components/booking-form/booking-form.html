@@ -1,0 +1,66 @@
+
+<!-- Booking Card -->
+<div class="card shadow mt-4">
+  <div class="card-body">
+
+    <!-- Header -->
+    <h4 class="mb-4 text-center">Book This Car</h4>
+
+    <!-- Booking Form -->
+    <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+
+      <!-- Start Date -->
+      <div class="mb-3">
+        <label class="form-label">Start Date</label>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="startDate"
+          [class.is-invalid]="submitted && bookingForm.controls['startDate'].invalid"
+        />
+        <div class="invalid-feedback">
+          Start date is required.
+        </div>
+      </div>
+
+      <!-- End Date -->
+      <div class="mb-3">
+        <label class="form-label">End Date</label>
+        <input
+          type="date"
+          class="form-control"
+          formControlName="endDate"
+          [class.is-invalid]="submitted && bookingForm.controls['endDate'].invalid"
+        />
+        <div class="invalid-feedback">
+          End date is required.
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-success w-100"
+        [disabled]="loading || bookingForm.invalid"
+      >
+        <span *ngIf="!loading">Book Now</span>
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        <span *ngIf="loading">Processing...</span>
+      </button>
+
+      <!-- Car Availability Warning -->
+      <div *ngIf="car && !car.available" class="text-danger mt-2 text-center">
+        This car is currently not available.
+      </div>
+
+    </form>
+
+    <!-- Back Button -->
+    <div class="text-center mt-3">
+      <a routerLink="/cars" class="btn btn-outline-secondary btn-sm">
+        Back to Cars
+      </a>
+    </div>
+
+  </div>
+</div>

@@ -1,7 +1,0 @@
-.card {
-  border-radius: 10px;
-}
-
-input.ng-invalid.ng-touched {
-  border-color: #dc3545; /* Bootstrap danger color for invalid inputs */
-}

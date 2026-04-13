@@ -1,0 +1,11 @@
+.invalid-feedback {
+  display: block;
+}
+
+table th, table td {
+  vertical-align: middle;
+}
+
+h4 {
+  font-weight: 600;
+}

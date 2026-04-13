@@ -1,0 +1,78 @@
+<div class="container my-4">
+  <h2 class="mb-3 text-center">Available Cars</h2>
+
+  <!-- Search Input -->
+  <div class="mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search by name"
+      [(ngModel)]="searchTerm"
+    />
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center my-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <!-- Cars List -->
+  <div class="row">
+    <div *ngFor="let car of cars" class="col-md-4 mb-4">
+      <div class="card h-100 car-card"
+           (mouseenter)="car.hover = true"
+           (mouseleave)="car.hover = false"
+           [ngStyle]="{'transform': car.hover ? 'scale(1.03)' : 'scale(1)', 'box-shadow': car.hover ? '0 10px 30px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)'}">
+
+        <div *ngIf="(car.discount ?? 0) > 0" class="ribbon">
+  -{{ car.discount }}%
+</div>
+
+        <!-- Car Image -->
+        <img 
+          [src]="car.imageUrl"
+          (error)="$event.target.src='assets/no-image.jpg'"
+          class="card-img-top"
+          alt="{{car.carname}}"
+          height="200"
+        />
+
+        <div class="card-body">
+          <h5 class="card-title">{{ car.carname }}</h5>
+          <p class="card-text">{{ car.description }}</p>
+          <p class="card-text"><strong>Type:</strong> {{ car.type || 'General' }}</p>
+          <p class="card-text"><strong>Price:</strong> ${{ car.price }}</p>
+
+          <!-- Star Rating -->
+          <div class="star-rating mb-2">
+            <ng-container *ngFor="let filled of getStars(car.rating); let i = index">
+              <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
+            </ng-container>
+          </div>
+
+          <p class="card-text">
+            <span class="badge" [ngClass]="car.available ? 'bg-success' : 'bg-danger'">
+              {{ car.available ? 'Available' : 'Not Available' }}
+            </span>
+          </p>
+        </div>
+
+        <div class="card-footer text-center">
+          <a
+            [routerLink]="['/car', car.id]"
+            class="btn btn-primary"
+            [ngClass]="{'disabled btn-secondary': !car.available}"
+            [attr.aria-disabled]="!car.available"
+          >
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Cars Found -->
+  <div *ngIf="!loading && cars.length === 0" class="text-center mt-4">
+    <p>No cars found.</p>
+  </div>
+</div>
