@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -94,10 +94,20 @@ exports.registerUser = async (req, res) => {
       user: result.rows[0]
     });
 
+  // } catch (err) {
+  //   console.error("registerUser error:", err);
+  //   res.status(500).json({ message: 'Server error' });
+  // }
   } catch (err) {
-    console.error("registerUser error:", err);
-    res.status(500).json({ message: 'Server error' });
-  }
+  console.error("🔥 FULL ERROR:", err);
+
+  return res.status(500).json({
+    message: err.message,
+    code: err.code,
+    detail: err.detail,
+    hint: err.hint
+  });
+}
 };
 
 // ---------------- UPDATE ----------------
@@ -194,8 +204,18 @@ exports.loginUser = async (req, res) => {
 
     res.status(200).json({ token });
 
+  // } catch (err) {
+  //   console.error("loginUser error:", err);
+  //   res.status(500).json({ message: 'Server error' });
+  // }
   } catch (err) {
-    console.error("loginUser error:", err);
-    res.status(500).json({ message: 'Server error' });
-  }
+  console.error("🔥 LOGIN FULL ERROR:", err);
+
+  return res.status(500).json({
+    message: err.message,
+    code: err.code,
+    detail: err.detail,
+    stack: err.stack
+  });
+}
 };

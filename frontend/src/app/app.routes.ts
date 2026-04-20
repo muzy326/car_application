@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './components/guards/auth.guard';
+import { authGuard } from './components/guards/functionalguard';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -28,25 +29,25 @@ export const routes: Routes = [
     path: 'cars',
     loadComponent: () =>
       import('./components/carlist/carlist').then(m => m.CarlistComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'car/:id',
     loadComponent: () =>
       import('./components/car-details/car-details').then(m => m.CarDetailsComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'booking/:id',
     loadComponent: () =>
       import('./components/booking-form/booking-form').then(m => m.BookingFormComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'my-bookings',
     loadComponent: () =>
       import('./components/my-bookings/my-bookings').then(m => m.MyBookingsComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
 
   // Booking Bill Route
@@ -54,34 +55,34 @@ export const routes: Routes = [
     path: 'booking-bill/:id',
     loadComponent: () =>
       import('./components/booking-bill/booking-bill').then(m => m.BookingBillComponent),
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
 
   // Admin Pages (fully protected)
   {
     path: 'admin',
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
     data: { roles: ['Admin'] },
     children: [
       {
         path: '',
         loadComponent: () =>
           import('./components/admin/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { roles: ['Admin'] }
       },
       {
         path: 'cars',
         loadComponent: () =>
           import('./components/admin/car-management/car-management').then(m => m.CarManagementComponent),
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { roles: ['Admin'] }
       },
       {
         path: 'bookings',
         loadComponent: () =>
           import('./components/admin/booking-management/booking-management').then(m => m.BookingManagementComponent),
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         data: { roles: ['Admin'] }
       },
       {
