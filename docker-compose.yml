@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./server
@@ -27,11 +32,12 @@ services:
       DB_NAME: car_application
       DB_PORT: 5432
       JWT_SECRET: super_secure_secret_key_for_car_app_12345
-      FRONTEND_URL: http://localhost
+      FRONTEND_URL: http://13.53.98.220   # 🔥 CHANGE THIS (your EC2 IP)
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
