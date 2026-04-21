@@ -1,6 +1,5 @@
 services:
 
-  # ------------------ DATABASE ------------------
   db:
     image: postgres:15
     container_name: car_db
@@ -14,7 +13,6 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  # ------------------ BACKEND (Node.js + Express) ------------------
   backend:
     build: ./server
     container_name: car_backend
@@ -29,24 +27,22 @@ services:
       DB_NAME: car_application
       DB_PORT: 5432
       JWT_SECRET: super_secure_secret_key_for_car_app_12345
-      FRONTEND_URL: http://localhost:4200
+      FRONTEND_URL: http://localhost
     ports:
       - "3000:3000"
     depends_on:
       - db
 
-  # ------------------ FRONTEND (Angular + Nginx) ------------------
   frontend:
-  build:
-    context: ./frontend
-    dockerfile: Dockerfile
-  container_name: car_frontend
-  restart: always
-  ports:
-    - "80:80"
-  depends_on:
-    - backend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: car_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
-# ------------------ VOLUMES ------------------
 volumes:
   db_data:
