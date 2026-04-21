@@ -37,13 +37,15 @@ services:
 
   # ------------------ FRONTEND (Angular + Nginx) ------------------
   frontend:
-    build: ./frontend
-    container_name: car_frontend
-    restart: always
-    ports:
-      - "4200:80"
-    depends_on:
-      - backend
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+  container_name: car_frontend
+  restart: always
+  ports:
+    - "80:80"
+  depends_on:
+    - backend
 
 # ------------------ VOLUMES ------------------
 volumes:
