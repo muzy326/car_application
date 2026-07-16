@@ -8,7 +8,7 @@ export interface AuthResponseModel {
   message: string;
   user: {
     id: any;
-    firstname: string;
+    name: string;
     role: string;
   };
   token: string;
@@ -27,20 +27,26 @@ export class AuthService {
   login(email: string, password: string): Observable<AuthResponseModel> {
     return this.http.post<AuthResponseModel>(`${this.baseUrl}/login`, { email, password }).pipe(
       tap((res: AuthResponseModel) => {
+
+         console.log("🔥 SERVICE HIT");
+         console.log("🔥 RESPONSE:", res);
         // Store token and user info in localStorage
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', res.token || '');
-          localStorage.setItem('name', res.user.firstname);
-          localStorage.setItem('role', res.user.role);
-          localStorage.setItem('userId', res.user.id.toString());
+          localStorage.setItem('name', res.user?.name || '');   // ✅ FIXED
+          localStorage.setItem('role', res.user?.role || '');
+          localStorage.setItem('userId', res.user?.id?.toString() || '');
+
+          console.log("🔥 LOCAL STORAGE AFTER SAVE:", localStorage);
         }
+        
       })
     );
   }
 
   // ---------------- REGISTER ----------------
-  register(user: { firstname: string; lastname: string; email: string; password: string; role?: string }): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/registration`, user);
+  register(user: { firstname: string; lastname: string;  phonenumber: string; email: string; password: string; role?: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/register`, user);
   }
 
   // ---------------- LOGOUT ----------------

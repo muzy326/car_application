@@ -10,7 +10,7 @@ const pool = require('../db');
 exports.getAllUsers = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, firstname, lastname, email, role FROM users'
+      'SELECT id, firstname, lastname,phonenumber,email, role FROM users'
     );
     res.json(result.rows);
   } catch (err) {
@@ -27,7 +27,7 @@ exports.getProfile = async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, firstname, lastname, email, role, phonenumber FROM users WHERE id=$1',
+      'SELECT id, firstname, lastname, phonenumber, email, role FROM users WHERE id=$1',
       [req.user.id]
     );
 
@@ -46,7 +46,7 @@ exports.getProfile = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, firstname, lastname, email, role, phonenumber FROM users WHERE id=$1',
+      'SELECT id, firstname, lastname, phonenumber, email, role FROM users WHERE id=$1',
       [req.params.id]
     );
 
@@ -82,13 +82,19 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      `INSERT INTO users 
-      (firstname, lastname, email, password, role, phonenumber) 
-      VALUES ($1,$2,$3,$4,$5,$6) 
-      RETURNING id, firstname, lastname, email, role, phonenumber`,
-      [firstname, lastname, email, hashedPassword, role || 'User', phonenumber || null]
-    );
-
+       `INSERT INTO users
+  (firstname, lastname, phonenumber, email, password, role)
+  VALUES ($1,$2,$3,$4,$5,$6)
+  RETURNING id, firstname, lastname, email, role, phonenumber`,
+  [
+    firstname,
+    lastname,
+    phonenumber || null,
+    email,
+    hashedPassword,
+    role || 'User'
+  ]
+);
     res.status(201).json({
       message: 'User created',
       user: result.rows[0]
@@ -197,25 +203,32 @@ exports.loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, firstname: user.firstname, role: user.role },
+      { id: user.id, name: user.firstname, role: user.role },
       process.env.JWT_SECRET || 'demo_secret',
       { expiresIn: '8h' }
     );
 
-    res.status(200).json({ token });
+    // ✅🔥 FIX: send user details also
+    res.status(200).json({
+      message: "Login successful",
+      token: token,
+      user: {
+        id: user.id,
+        name: user.firstname,   // 👈 important mapping
+        role: user.role,
+        email: user.email,
+        phonenumber: user.phonenumber
+      }
+    });
 
-  // } catch (err) {
-  //   console.error("loginUser error:", err);
-  //   res.status(500).json({ message: 'Server error' });
-  // }
   } catch (err) {
-  console.error("🔥 LOGIN FULL ERROR:", err);
+    console.error("🔥 LOGIN FULL ERROR:", err);
 
-  return res.status(500).json({
-    message: err.message,
-    code: err.code,
-    detail: err.detail,
-    stack: err.stack
-  });
-}
+    return res.status(500).json({
+      message: err.message,
+      code: err.code,
+      detail: err.detail,
+      stack: err.stack
+    });
+  }
 };

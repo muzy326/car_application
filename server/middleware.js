@@ -2,24 +2,37 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-/**
- * Authenticate JWT token
- */
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : null;
 
-  if (!token) return res.status(401).json({ message: 'Unauthorized. Please login again.' });
+  console.log("========== AUTH DEBUG ==========");
+  console.log("Authorization Header:", authHeader);
+
+  const token =
+    authHeader && authHeader.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : null;
+
+  console.log("Extracted Token:", token);
+
+  if (!token) {
+    console.log("❌ No token received");
+    return res.status(401).json({ message: 'Unauthorized. Please login again.' });
+  }
 
   jwt.verify(token, process.env.JWT_SECRET || 'demo_secret', (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user; // user = { id: 1, role: 'user' }
+    if (err) {
+      console.log("❌ JWT ERROR:", err.message);
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+
+    console.log("✅ Decoded User:", user);
+
+    req.user = user;
     next();
   });
 }
-
 /**
  * Authorize roles
  * roles = ['admin'], etc.

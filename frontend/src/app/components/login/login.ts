@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -25,7 +25,8 @@ export class LoginComponent {
     private authService: AuthService,
     private toastr: ToastrService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     // Auto redirect if token exists
     const token = localStorage.getItem('token');
@@ -33,34 +34,39 @@ export class LoginComponent {
       setTimeout(() => this.router.navigate(['/home']), 0);
     }
   }
-
-  login(form: NgForm) {
-    if (form.invalid) {
-      this.toastr.error('Please enter valid email and password');
-      return;
-    }
-
-    this.loading = true;
-    this.loginError = '';
-
-    this.authService.login(this.model.email, this.model.password).subscribe({
-      next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('name', res.user.firstname);
-        localStorage.setItem('role', res.user.role);
-        localStorage.setItem('userId', res.user.id.toString());
-
-        this.toastr.success(`Welcome ${res.user.firstname}`);
-
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
-        this.router.navigateByUrl(returnUrl);
-      },
-      error: (err) => {
-        if (err.status === 401) this.loginError = 'Incorrect password';
-        else if (err.status === 404) this.loginError = 'User not found';
-        else this.loginError = 'Login failed. Please try again.';
-      },
-      complete: () => (this.loading = false)
-    });
+ 
+login(form: NgForm) {
+  if (form.invalid) {
+    this.toastr.error('Please enter valid email and password');
+    return;
   }
+
+  this.loginError = '';
+
+  // ✅ move loading change OUTSIDE immediate cycle
+  setTimeout(() => {
+    this.loading = true;
+  });
+
+  this.authService.login(this.model.email, this.model.password).subscribe({
+    next: (res) => {
+      console.log("🔥 LOGIN RESPONSE:", res);
+
+      this.loading = false;
+
+      this.toastr.success(`Welcome ${res.user.name}`);
+
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+      this.router.navigateByUrl(returnUrl);
+    },
+
+    error: (err) => {
+      this.loading = false;
+
+      if (err.status === 401) this.loginError = 'Incorrect password';
+      else if (err.status === 404) this.loginError = 'User not found';
+      else this.loginError = 'Login failed. Please try again.';
+    }
+  });
+}
 }

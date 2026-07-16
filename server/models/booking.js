@@ -1,51 +1,63 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const User = require('./user');
-const Car = require('./car');
 
-const Booking = sequelize.define('Booking', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: User,
-      key: 'id'
-    },
-    allowNull: false
-  },
-  carId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: Car,
-      key: 'id'
-    },
-    allowNull: false
-  },
-  startDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  endDate: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  status: {
-    type: DataTypes.STRING,
-    defaultValue: 'Pending'
-  }
-}, {
-  tableName: 'bookings',
-  timestamps: true
-});
+const db = require('../db');
 
-// Optional: define associations
-User.hasMany(Booking, { foreignKey: 'userId' });
-Car.hasMany(Booking, { foreignKey: 'carId' });
-Booking.belongsTo(User, { foreignKey: 'userId' });
-Booking.belongsTo(Car, { foreignKey: 'carId' });
+// Create booking
+const createBooking = async (booking) => {
+  const {
+    userId,
+    carId,
+    startDate,
+    endDate,
+    status
+  } = booking;
 
-module.exports = Booking;
+  const result = await db.query(
+    `INSERT INTO bookings
+    (user_id, car_id, start_date, end_date, status)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *`,
+    [
+      userId,
+      carId,
+      startDate,
+      endDate,
+      status || 'Pending'
+    ]
+  );
+
+  return result.rows[0];
+};
+
+// Get all bookings
+const getAllBookings = async () => {
+  const result = await db.query(
+    'SELECT * FROM bookings ORDER BY id'
+  );
+
+  return result.rows;
+};
+
+// Get booking by ID
+const getBookingById = async (id) => {
+  const result = await db.query(
+    'SELECT * FROM bookings WHERE id = $1',
+    [id]
+  );
+
+  return result.rows[0];
+};
+
+// Delete booking
+const deleteBooking = async (id) => {
+  await db.query(
+    'DELETE FROM bookings WHERE id = $1',
+    [id]
+  );
+};
+
+module.exports = {
+  createBooking,
+  getAllBookings,
+  getBookingById,
+  deleteBooking
+};

@@ -3,7 +3,7 @@ import { authGuard } from './components/guards/functionalguard';
 
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // Public
   {
@@ -44,17 +44,31 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'my-bookings',
-    loadComponent: () =>
-      import('./components/my-bookings/my-bookings').then(m => m.MyBookingsComponent),
-    canActivate: [authGuard]
-  },
-
+  path: 'booking-success',
+  loadComponent: () =>
+    import('./components/booking-success/booking-success').then(
+      m => m.BookingSuccessComponent
+    ),
+  canActivate: [authGuard]
+},
+  
   // Booking Bill Route
   {
     path: 'booking-bill/:id',
     loadComponent: () =>
       import('./components/booking-bill/booking-bill').then(m => m.BookingBillComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'my-bookings',
+    loadComponent: () =>
+      import('./components/my-bookings/my-bookings').then(m => m.MyBookingsComponent),
+    canActivate: [authGuard]
+  },
+ {
+    path: 'profile',
+    loadComponent: () =>
+      import('./components/user-profile/user-profile').then(m => m.UserProfileComponent),
     canActivate: [authGuard]
   },
 
@@ -91,6 +105,12 @@ export const routes: Routes = [
           import('./components/admin/users-management/users-management').then(m => m.UsersManagementComponent)
       }
     ]
+  },
+   {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./components/un-authorized/un-authorized')
+        .then(m => m.UnAuthorizedComponent)
   },
 
   // Fallback

@@ -51,52 +51,62 @@
 
   </div>
 
-  <!-- Top Cars & Booking Status Charts -->
+  <!-- Charts Row 1 -->
   <div class="row mb-4">
 
     <div class="col-md-6 mb-3">
+
       <donut-chart
+        *ngIf="topCarsData.length"
         [data]="topCarsData"
         [keys]="{ label: 'name', value: 'value' }"
         [title]="'Car Types Distribution'"
-        [clickable]="true"
         [noDataText]="'No car data available!'">
       </donut-chart>
+
     </div>
 
     <div class="col-md-6 mb-3">
+
       <pie-chart
+        *ngIf="bookingStatusData.length"
         [data]="bookingStatusData"
         [keys]="{ label: 'name', value: 'value' }"
         [title]="'Booking Status Distribution'"
-        [clickable]="true"
         [noDataText]="'No booking status data available!'">
       </pie-chart>
+
     </div>
 
   </div>
 
-  <!-- Monthly & Daily Booking Trends -->
+  <!-- Charts Row 2 -->
   <div class="row mb-4">
 
     <div class="col-md-6 mb-3">
+
       <bar-chart
-        [data]="monthlyBookingData.data"
+        *ngIf="monthlyBookingData.length"
+        [data]="monthlyBookingData"
         [categoryField]="'name'"
         [valueField]="'value'"
         [title]="'Monthly Booking Trends'"
         [noDataText]="'No monthly data available!'">
       </bar-chart>
+
     </div>
 
     <div class="col-md-6 mb-3">
+
       <bar-chart
+        *ngIf="dailyBookingData.length"
         [data]="dailyBookingData"
         [categoryField]="'name'"
         [valueField]="'value'"
         [title]="'Daily Booking Trends'"
         [noDataText]="'No daily data available!'">
       </bar-chart>
+
     </div>
 
   </div>

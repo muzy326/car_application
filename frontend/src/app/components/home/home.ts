@@ -15,7 +15,7 @@ export class HomeComponent {
 
   ngOnInit() {
     if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      this.router.navigate(['/cars']);
+      this.router.navigate(['/home']);
     }
   }
 

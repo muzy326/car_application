@@ -20,6 +20,7 @@ export class RegistrationComponent {
   userModel = {
     firstname: '',
     lastname: '',
+    phonenumber: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -49,6 +50,7 @@ export class RegistrationComponent {
     const userData = {
       firstname: this.userModel.firstname,
       lastname: this.userModel.lastname,
+      phonenumber: this.userModel.phonenumber,
       email: this.userModel.email,
       password: this.userModel.password
     };
@@ -59,6 +61,7 @@ export class RegistrationComponent {
         localStorage.setItem('token', res.token);
         localStorage.setItem('name', res.user.firstname);
         localStorage.setItem('role', res.user.role);
+        localStorage.setItem('phonenumber', res.user.phonenumber);
         this.toastr.success('Registration Successful ✅');
         form.resetForm();
         this.router.navigate(['/home']);

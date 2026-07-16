@@ -15,7 +15,7 @@ const {
 const { authenticateToken, authorizeRoles } = require('../middleware');
 
 // Public routes
-router.post('/registration', registerUser);   // Register new user
+router.post('/register', registerUser);   // Register new user
 router.post('/login', loginUser);             // Login
 
 // Protected route (any logged-in user)

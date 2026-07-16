@@ -1,124 +1,93 @@
-import {
-  Component,
-  ElementRef,
-  NgZone,
-  ViewChild,
-  Output,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  AfterViewInit,
-  OnChanges,
-  SimpleChanges,
-  ChangeDetectorRef
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import * as am4core from '@amcharts/amcharts4/core';
-import * as am4charts from '@amcharts/amcharts4/charts';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, ViewChild } from "@angular/core";
+import { AmchartsLoaderService } from "../../../services/amcharts-loader.service";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'bar-chart',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="card shadow-sm p-3">
-      <h5 class="text-center mb-3">{{ title }}</h5>
-      <div #chartDiv class="chart-container"></div>
-      <div *ngIf="!dataFound" class="text-center text-muted mt-3">
-        {{ noDataText || 'No chart data available' }}
-      </div>
+    <div class="card p-3 shadow-sm">
+      <h5 class="text-center">{{ title }}</h5>
+      <div #chartDiv class="chart"></div>
     </div>
   `,
-  styles: [`
-    .chart-container {
-      width: 100%;
-      height: 350px;
-    }
-  `]
+  styles: [`.chart{height:350px;width:100%}`]
 })
 export class BarChartComponent implements AfterViewInit, OnDestroy, OnChanges {
 
-  @ViewChild('chartDiv', { static: false }) chartDiv!: ElementRef;
+  @ViewChild('chartDiv') chartDiv!: ElementRef;
 
-  @Input() title: string = 'Bar Chart';
+  @Input() title = 'Bar Chart';
   @Input() data: any[] = [];
-  @Input() categoryField: string = 'name';
-  @Input() valueField: string = 'value';
+  @Input() categoryField = 'name';
+  @Input() valueField = 'value';
   @Input() noDataText: string = 'No chart data available';
-
   @Output() barClicked = new EventEmitter<any>();
 
-  private chart!: am4charts.XYChart;
-  dataFound = true;
+  private chart: any;
+  private am4core: any;
+  private am4charts: any;
+  private viewReady = false;
 
-  constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {}
+  constructor(private zone: NgZone, private loader: AmchartsLoaderService) {}
 
-  ngAfterViewInit(): void {
-    this.updateChart();
+  async ngAfterViewInit() {
+    this.viewReady = true;
+    await this.loadLib();
+    this.renderChart();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
-      this.updateChart();
+  ngOnChanges() {
+    if (this.viewReady) this.renderChart();
+  }
+
+  private async loadLib() {
+    const lib = await this.loader.load();
+    this.am4core = lib.am4core;
+    this.am4charts = lib.am4charts;
+  }
+
+  private renderChart() {
+    if (!this.chartDiv?.nativeElement || !this.data?.length) {
+      if (this.noDataText) {
+        this.chartDiv.nativeElement.innerHTML = this.noDataText;
+      }
+      return;
     }
-  }
 
-  private updateChart() {
-    if (!this.chartDiv) return;
-
-    // Dispose previous chart if exists
     if (this.chart) {
       this.zone.runOutsideAngular(() => this.chart.dispose());
     }
 
-    // Check if data exists
-    if (!this.data || this.data.length === 0) {
-      // Update dataFound safely
-      this.zone.run(() => {
-        this.dataFound = false;
-        this.cdr.detectChanges(); // <-- Prevent ExpressionChangedAfterItHasBeenCheckedError
-      });
-      return;
-    }
-
-    // Data exists, show chart
-    this.zone.run(() => {
-      this.dataFound = true;
-      this.cdr.detectChanges();
-    });
-
     this.zone.runOutsideAngular(() => {
-      const chart = am4core.create(this.chartDiv.nativeElement, am4charts.XYChart);
+      const chart = this.am4core.create(
+        this.chartDiv.nativeElement,
+        this.am4charts.XYChart
+      );
+
       chart.data = this.data;
-      this.chart = chart;
 
-      // X axis
-      const categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+      const categoryAxis = chart.xAxes.push(new this.am4charts.CategoryAxis());
       categoryAxis.dataFields.category = this.categoryField;
-      categoryAxis.renderer.grid.template.location = 0;
 
-      // Y axis
-      const valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+      const valueAxis = chart.yAxes.push(new this.am4charts.ValueAxis());
 
-      // Series
-      const series = chart.series.push(new am4charts.ColumnSeries());
+      const series = chart.series.push(new this.am4charts.ColumnSeries());
       series.dataFields.categoryX = this.categoryField;
       series.dataFields.valueY = this.valueField;
-      series.columns.template.tooltipText = `{${this.categoryField}}: {${this.valueField}}`;
-      series.columns.template.strokeOpacity = 0;
 
-      // Click event
-      series.columns.template.events.on("hit", (ev: any) => {
+      series.columns.template.events.on('hit', (ev: any) => {
         this.zone.run(() => {
           this.barClicked.emit(ev.target.dataItem.dataContext);
         });
       });
 
-      chart.cursor = new am4charts.XYCursor();
+      this.chart = chart;
     });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.zone.runOutsideAngular(() => {
       if (this.chart) this.chart.dispose();
     });

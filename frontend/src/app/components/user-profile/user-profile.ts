@@ -28,7 +28,7 @@ export class UserProfileComponent implements OnInit {
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: [''],
       email: ['', [Validators.required, Validators.email]],
-      phonenumber: ['']
+      phonenumber: ['', [Validators.minLength(10)]]
     });
 
     // Load user profile

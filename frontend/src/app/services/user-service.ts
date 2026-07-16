@@ -13,14 +13,13 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  /** Login user */
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { email, password });
-  }
-
-  /** Register user (public) */
+ 
   register(user: User): Observable<any> {
     return this.http.post(`${this.baseUrl}/registration`, user);
+  }
+  
+  logout() {
+    localStorage.clear(); // optional helper only
   }
 
   /** Get JWT headers */
@@ -31,10 +30,12 @@ export class UserService {
 
   /** Get logged-in user profile */
   getProfile(): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/users/profile`, this.getAuthHeaders());
+    return this.http.get<User>(`${this.baseUrl}/profile`, this.getAuthHeaders());
+    // return this.http.get<User>(`${this.baseUrl}/users/profile`, this.getAuthHeaders());
   }
   updateProfile(user: User): Observable<User> {
-    return this.http.put<User>(`/api/users/${user.id}`, user);
+    // return this.http.put<User>(`/api/users/${user.id}`, user);
+    return this.http.put<User>( `${this.baseUrl}/${user.id}`, user, this.getAuthHeaders());
   }
 
   /** Get all users (Admin) */

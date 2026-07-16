@@ -1,22 +1,54 @@
-console.log("🔥 Backend container starting...");
+process.on("uncaughtException", (err) => {
+  console.error("🔥 CRASH:", err);
+});
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.on("unhandledRejection", (err) => {
+  console.error("🔥 PROMISE ERROR:", err);
+});
 
+// ------------------ ENV SETUP ------------------
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
+console.log("🔥 Backend starting...");
+
+// ------------------ DEBUG ENV ------------------
+console.log("ENV CHECK:", {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  db: process.env.DB_NAME,
+  port: process.env.DB_PORT
+});
+
+// ------------------ IMPORTS ------------------
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+const pool = require('./db');
 
-const pool = require('./db'); // DB pool
+
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ------------------ MIDDLEWARE ------------------
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',  // safer for AWS test
+  origin: "http://localhost:4200",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
 
+
+
+
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log('➡️ REQUEST:', req.method, req.url);
+  console.log('AUTH HEADER:', req.headers.authorization);
+  next();
+});
 
 // ------------------ ROUTES ------------------
 app.use('/api/users', require('./routes/userRoutes'));
@@ -24,12 +56,14 @@ app.use('/api/cars', require('./routes/carRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 
-// Chat
+
+
+// Chat routes
 const chatController = require('./controllers/chatController');
 app.post('/api/chat', chatController.chat);
 app.post('/api/chat/send', chatController.sendMessage);
 
-// Test
+// Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
@@ -39,32 +73,28 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err);
-  res.status(500).json({
-    success: false,
-    error: err.message || 'Internal Server Error'
+async function connectDB() {
+    try {
+        await pool.query('SELECT 1');
+        console.log('✅ PostgreSQL connected');
+    } catch (err) {
+        console.error(err);
+        process.exit(1);
+    }
+}
+
+// // ------------------ START SERVER ------------------
+// connectDB().then(() => {
+//   app.listen(PORT, '0.0.0.0', () => {
+//     console.log(`🚀 Server running on port ${PORT}`);
+//   });
+// });
+// app.listen(3000, () => {
+//   console.log("Backend running on port 3000");
+// });
+connectDB().then(() => {
+  app.listen(PORT || 3000, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 });
-
-// ------------------ DB CHECK (FIXED) ------------------
-const waitForDB = async () => {
-  try {
-    await pool.query('SELECT 1');  // ✅ safer than pool.connect()
-    console.log("✅ DB connected");
-
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log("🚀 Server started successfully");
-      console.log("PORT:", PORT);
-    });
-
-  } catch (err) {
-    console.error("❌ DB ERROR:", err.message);
-
-    console.log("⏳ Retrying DB connection in 5 seconds...");
-    setTimeout(waitForDB, 5000); // retry instead of crash
-  }
-};
-
-waitForDB();
+// ✅ IMPORTANT: export for testing

@@ -23,7 +23,7 @@
         </li>
 
         <!-- Admin Dropdown -->
-        <li class="nav-item dropdown" *ngIf="displayName && isAdmin">
+        <li class="nav-item dropdown" *ngIf="isAdmin">
           <a class="nav-link dropdown-toggle" role="button" (click)="toggleAdminDropdown()">Admin</a>
           <ul class="dropdown-menu dropdown-menu-dark" [ngClass]="{ 'show': adminDropdownOpen }">
             <li><a class="dropdown-item" routerLink="/admin" (click)="closeMenus()">Dashboard</a></li>

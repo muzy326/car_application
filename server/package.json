@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node server/index.js",
+    "start": "node index.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "mocha test/**/*.js --timeout 10000",
@@ -50,7 +50,8 @@
     "ngx-pagination": "^6.0.3",
     "ngx-toastr": "^20.0.5",
     "openai": "^6.31.0",
-    "pg": "^8.18.0",
+    "pg": "^8.21.0",
+    "pg-hstore": "^2.3.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

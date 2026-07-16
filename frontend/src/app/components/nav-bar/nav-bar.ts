@@ -34,18 +34,25 @@ export class NavBarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+     
     const id = localStorage.getItem('latestBookingId');
   this.latestBookingId = id ? Number(id) : null;
 
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
-      this.displayName = localStorage.getItem('name');
+      
+      this.displayName = localStorage.getItem('name') || '';
 
-      const role = localStorage.getItem('role') || '';
-      this.isAdmin = role.toLowerCase() === 'admin';
+     const role = localStorage.getItem('role');
 
-      const userIdStr = localStorage.getItem('id');
+if (role) {
+  this.isAdmin = role.trim().toLowerCase() === 'admin';
+} else {
+  this.isAdmin = false;
+}
+
+      const userIdStr = localStorage.getItem('userId');
       this.userId = userIdStr ? Number(userIdStr) : null;
 
       // fetch latest booking safely
@@ -55,6 +62,14 @@ export class NavBarComponent implements OnInit {
     if (bookings && bookings.length > 0 && bookings[0].id) {
       this.latestBookingId = bookings[0].id;
     }
+
+    
+console.log("🔥 NAVBAR LOAD");
+console.log("NAME:", localStorage.getItem('name'));
+console.log("ROLE:", localStorage.getItem('role'));
+console.log("USERID:", localStorage.getItem('userId'));
+
+
   },
   error: err => console.error('Failed to fetch latest booking', err)
 });
@@ -103,13 +118,19 @@ export class NavBarComponent implements OnInit {
     this.adminDropdownOpen = false;
     this.userDropdownOpen = false;
   }
-
   logout() {
-    if (this.isBrowser) localStorage.clear();
-    this.displayName = null;
-    this.isAdmin = false;
-    this.latestBookingId = null;
-    this.closeMenus();
-    this.router.navigate(['/login']);
+  if (this.isBrowser) {
+    localStorage.clear(); // ✅ correct place
   }
+
+  this.displayName = null;
+  this.isAdmin = false;
+  this.latestBookingId = null;
+
+  this.closeMenus();
+  this.router.navigate(['/login']);
 }
+
+
+}
+

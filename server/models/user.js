@@ -3,18 +3,25 @@ const bcrypt = require('bcryptjs'); // <- added for password hashing
 
 // Create new user (hash password before saving)
 const createUser = async (user) => {
-  const { firstname, lastname, email, password, role } = user;
+  const { firstname, lastname, phonenumber, email, password, role } = user;
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const query = `
-    INSERT INTO users (firstname, lastname, email, password, role)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, firstname, lastname, email, role;
+    INSERT INTO users (firstname, lastname, phonenumber,email, password, role)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, firstname, lastname, phonenumber, email, role;
   `;
 
-  const values = [firstname, lastname, email, hashedPassword, role || 'user'];
+  const values = [
+  firstname,
+  lastname,
+  phonenumber || null,
+  email,
+  hashedPassword,
+  role || 'user'
+];
 
   const result = await db.query(query, values);
   return result.rows[0];
@@ -22,7 +29,7 @@ const createUser = async (user) => {
 
 // Get all users (don't return passwords)
 const getAllUsers = async () => {
-  const result = await db.query('SELECT id, firstname, lastname, email, role FROM users');
+  const result = await db.query('SELECT id, firstname, lastname, phonenumber, email, role FROM users');
   return result.rows;
 };
 
@@ -38,7 +45,7 @@ const getUserByEmail = async (email) => {
 // Get user by ID (don't return password)
 const getUserById = async (id) => {
   const result = await db.query(
-    'SELECT id, firstname, lastname, email, role FROM users WHERE id = $1',
+    'SELECT id, firstname, lastname, phonenumber, email, role FROM users WHERE id = $1',
     [id]
   );
   return result.rows[0];

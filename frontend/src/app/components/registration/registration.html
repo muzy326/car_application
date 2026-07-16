@@ -38,6 +38,14 @@
               </div>
             </div>
 
+            <!-- Phone Number -->
+          <div class="mb-3">
+          <input type="text"class="form-control"name="phonenumber"placeholder="Phone Number"
+                [(ngModel)]="userModel.phonenumber"required #phone="ngModel">
+          <div *ngIf="phone.invalid && phone.touched" class="text-danger small mt-1">
+            Phone number is required.
+          </div>
+        </div>
             <!-- Email -->
             <div class="mb-3">
               <input type="email" class="form-control" name="email" placeholder="Email"

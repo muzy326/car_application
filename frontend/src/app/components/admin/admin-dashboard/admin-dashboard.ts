@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -12,11 +12,11 @@ import { BookingService } from '../../../services/booking.service';
 // Models
 import { Car } from '../../../models/car.model';
 import { Booking } from '../../../models/booking.model';
-
-// Charts
 import { DonutChartComponent } from '../../charts/donut-chart/donut-chart.component';
 import { PieChartComponent } from '../../charts/pie-chart/pie-chart.component';
 import { BarChartComponent } from '../../charts/bar-chart/bar-chart.component';
+
+
 
 interface ChartData {
   name: string;
@@ -50,10 +50,9 @@ export class AdminDashboardComponent implements OnInit {
 
   topCarsData: ChartData[] = [];
   bookingStatusData: ChartData[] = [];
-  monthlyBookingData: { data: ChartData[], xAxis: string, yAxis: string } = { data: [], xAxis: 'Month', yAxis: 'Bookings' };
+  monthlyBookingData: ChartData[] = [];
   dailyBookingData: ChartData[] = [];
 
-  // 🎨 Color map for car types
   private colorMap: { [key: string]: string } = {
     SUV: '#4CAF50',
     Sedan: '#2196F3',
@@ -66,8 +65,7 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     private carService: CarService,
     private userService: UserService,
-    private bookingService: BookingService,
-    private cdr: ChangeDetectorRef
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -75,128 +73,134 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // ------------------------------
-
-private loadDashboard(): void {
-  this.loader = false;
-
-forkJoin({
-  cars: this.carService.getCars(),
-  bookings: this.bookingService.getAllBookings(),
-  users: this.userService.getAllUsers()
-}).subscribe({
-  next: ({ cars, bookings, users }) => {
-
-    // ✅ FIX: map backend fields properly
-    const mappedBookings: Booking[] = bookings.map((b: any) => ({
-      id: b.id,
-      userId: b.user_id,
-      carId: b.car_id,
-      startDate: b.start_date,   // ✅ FIXED
-      endDate: b.end_date,       // ✅ FIXED
-      status: b.status
-    }));
-
-    // -------- COUNTS --------
-    this.totalCars = cars.length;
-    this.totalUsers = users.length;
-    this.totalBookings = mappedBookings.length;
-    this.activeRentals = mappedBookings.filter(b => b.status === 'Confirmed').length;
-
-    // -------- CHART DATA --------
-    this.calculateCarTypesFromCars(cars);
-    this.calculateBookingStatus(mappedBookings);
-    this.calculateMonthlyBookings(mappedBookings);
-    this.calculateDailyBookings(mappedBookings);
+  private loadDashboard(): void {
 
     this.loader = true;
-    this.cdr.detectChanges();
-  },
-  error: (err) => {
-    console.error('Dashboard load failed', err);
-    this.loader = true;
+
+    forkJoin({
+      cars: this.carService.getCars(),
+      bookings: this.bookingService.getAllBookings(),
+      users: this.userService.getAllUsers()
+    }).subscribe({
+      next: ({ cars, bookings, users }) => {
+
+        const mappedBookings: Booking[] = bookings.map((b: any) => ({
+          id: b.id,
+          userId: b.user_id,
+          carId: b.car_id,
+          startDate: b.start_date,
+          endDate: b.end_date,
+          status: b.status
+        }));
+
+        // COUNTS
+        this.totalCars = cars?.length || 0;
+        this.totalUsers = users?.length || 0;
+        this.totalBookings = mappedBookings.length;
+        this.activeRentals = mappedBookings.filter(b => b.status === 'Confirmed').length;
+
+        // CHARTS
+        this.calculateCarTypesFromCars(cars || []);
+        this.calculateBookingStatus(mappedBookings);
+        this.calculateMonthlyBookings(mappedBookings);
+        this.calculateDailyBookings(mappedBookings);
+
+        this.loader = false;
+      },
+
+      error: (err) => {
+        console.error('Dashboard load failed', err);
+        this.loader = false;
+      }
+    });
   }
-});
 
-}
   // ------------------------------
   private calculateCarTypesFromCars(cars: Car[]): void {
+
     const typeCount: { [key: string]: number } = {};
-    const total = cars.length;
+    const total = cars.length || 1;
 
     cars.forEach(car => {
       const type = car.type || 'Unknown';
       typeCount[type] = (typeCount[type] || 0) + 1;
     });
 
-    this.topCarsData = Object.entries(typeCount).map(([name, value]) => {
-      const percentage = ((value / total) * 100).toFixed(1);
-      return { name: `${name} (${percentage}%)`, value, color: this.colorMap[name] || '#607D8B' };
-    });
+    this.topCarsData = Object.entries(typeCount).map(([name, value]) => ({
+      name: `${name} (${((value / total) * 100).toFixed(1)}%)`,
+      value,
+      color: this.colorMap[name] || '#607D8B'
+    }));
   }
 
   // ------------------------------
   private calculateBookingStatus(bookings: Booking[]): void {
+
     const statusCount: { [key: string]: number } = {};
+
     bookings.forEach(b => {
-      const status = b.status ?? 'Unknown';
+      const status = b.status || 'Unknown';
       statusCount[status] = (statusCount[status] || 0) + 1;
     });
 
-    this.bookingStatusData = Object.entries(statusCount).map(([name, value]) => ({ name, value }));
+    this.bookingStatusData = Object.entries(statusCount).map(([name, value]) => ({
+      name,
+      value
+    }));
   }
 
   // ------------------------------
- private calculateMonthlyBookings(bookings: Booking[]): void {
-  const monthCount: { [key: string]: number } = {};
+  private calculateMonthlyBookings(bookings: Booking[]): void {
 
-  bookings.forEach(b => {
-    if (!b.startDate) return;
+    const monthCount: { [key: string]: number } = {};
 
-    const date = new Date(b.startDate);
-    if (isNaN(date.getTime())) return;
+    bookings.forEach(b => {
+      if (!b.startDate) return;
 
-    const key = `${date.getFullYear()}-${(date.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}`;
+      const date = new Date(b.startDate);
+      if (isNaN(date.getTime())) return;
 
-    monthCount[key] = (monthCount[key] || 0) + 1;
-  });
+      const key = `${date.getFullYear()}-${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}`;
 
-  const sortedKeys = Object.keys(monthCount).sort();
+      monthCount[key] = (monthCount[key] || 0) + 1;
+    });
 
-  this.monthlyBookingData.data = sortedKeys.map(key => {
-    const [year, month] = key.split('-');
-    const date = new Date(+year, +month - 1);
+    this.monthlyBookingData = Object.keys(monthCount)
+      .sort()
+      .map(key => {
+        const [year, month] = key.split('-');
+        const date = new Date(+year, +month - 1);
 
-    return {
-      name: date.toLocaleString('default', { month: 'short', year: 'numeric' }),
-      value: monthCount[key]
-    };
-  });
-}
+        return {
+          name: date.toLocaleString('default', { month: 'short', year: 'numeric' }),
+          value: monthCount[key]
+        };
+      });
+  }
 
-
-   
   // ------------------------------
- private calculateDailyBookings(bookings: Booking[]): void {
-  const dayCount: { [key: string]: number } = {};
+  private calculateDailyBookings(bookings: Booking[]): void {
 
-  bookings.forEach(b => {
-    if (!b.startDate) return;
+    const dayCount: { [key: string]: number } = {};
 
-    const date = new Date(b.startDate);
-    if (isNaN(date.getTime())) return;
+    bookings.forEach(b => {
+      if (!b.startDate) return;
 
-    const key = date.toISOString().split('T')[0];
+      const date = new Date(b.startDate);
+      if (isNaN(date.getTime())) return;
 
-    dayCount[key] = (dayCount[key] || 0) + 1;
-  });
+      const key = date.toISOString().split('T')[0];
 
-  const sortedKeys = Object.keys(dayCount).sort();
+      dayCount[key] = (dayCount[key] || 0) + 1;
+    });
 
-  this.dailyBookingData = sortedKeys.map(key => ({
-    name: key,
-    value: dayCount[key]
-  }));
-}
+    this.dailyBookingData = Object.keys(dayCount)
+      .sort()
+      .map(key => ({
+        name: key,
+        value: dayCount[key]
+      }));
+  }
 }

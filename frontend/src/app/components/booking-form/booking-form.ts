@@ -28,13 +28,15 @@ export class BookingFormComponent implements OnInit {
     private bookingService: BookingService,
     private router: Router,
     private toastr: ToastrService 
-  ) {}
+  ) { 
+    this.bookingForm = this.fb.group({
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required]
+  });
+}
 
   ngOnInit(): void {
-    this.bookingForm = this.fb.group({
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required]
-    });
+   
   }
 
   submitBooking(): void {
@@ -46,20 +48,19 @@ export class BookingFormComponent implements OnInit {
     const { startDate, endDate } = this.bookingForm.value;
 
     if (startDate >= endDate) {
-      alert('End Date must be after Start Date!');
+      this.toastr.warning('End Date must be after Start Date!');
       return;
     }
 
-    const userId = Number(localStorage.getItem('userId'));
+    const token = localStorage.getItem('token');
 
-    if (!userId) {
-      alert('Please login first!');
-      this.router.navigate(['/login']);
-      return;
-    }
+    if (!token) {
+    this.toastr.warning('Please login first!');
+    this.router.navigate(['/login']);
+    return;
+}
 
     const bookingPayload = {
-      user_id: userId,
       car_id: this.car.id!,
       start_date: startDate,
       end_date: endDate,
@@ -71,7 +72,7 @@ export class BookingFormComponent implements OnInit {
     this.bookingService.createBooking(bookingPayload).pipe(
       catchError(err => {
         console.error('Booking failed:', err);
-        alert('Booking failed!');
+        this.toastr.error('Booking failed!');
         this.loading = false;
         return of(null);
       })
@@ -84,7 +85,7 @@ export class BookingFormComponent implements OnInit {
       // Save booking ID
       localStorage.setItem('latestBookingId', res.id);
        // ✅ Angular toast
-    this.toastr.success('Booking completed successfully!');
+    //this.toastr.success('Booking completed successfully!');
 
       // ✅ CLEAN NAVIGATION (NO setTimeout)
       this.router.navigate(['/booking-success']);
