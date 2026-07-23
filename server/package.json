@@ -1,88 +1,25 @@
+
 {
-  "name": "car-application",
-  "version": "0.0.0",
+  "name": "car-backend",
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "ng": "ng",
     "start": "node index.js",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "mocha test/**/*.js --timeout 10000",
-    "serve:ssr:car-application": "node dist/car-application/server/index.mjs",
-    "backend": "node server/index.js"
+    "dev": "nodemon index.js",
+    "test": "mocha test/**/*.js --timeout 10000"
   },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.html",
-        "options": {
-          "parser": "angular"
-        }
-      }
-    ]
-  },
-  "private": true,
-  "packageManager": "npm@11.6.2",
   "dependencies": {
-    "@amcharts/amcharts4": "^4.10.40",
-    "@angular/animations": "^21.1.4",
-    "@angular/common": "^21.1.0",
-    "@angular/compiler": "^21.1.0",
-    "@angular/core": "^21.1.0",
-    "@angular/forms": "^21.1.0",
-    "@angular/platform-browser": "^21.1.0",
-    "@angular/platform-server": "^21.1.0",
-    "@angular/router": "^21.1.0",
-    "@angular/ssr": "^21.1.4",
-    "@ng-bootstrap/ng-bootstrap": "^20.0.0",
-    "@popperjs/core": "^2.11.8",
     "bcryptjs": "^3.0.3",
-    "bootstrap": "^5.3.8",
-    "bootstrap-icons": "^1.13.1",
-    "chart.js": "^4.5.1",
-    "cors": "^2.8.6",
+    "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "ng2-charts": "^10.0.0",
-    "ngx-pagination": "^6.0.3",
-    "ngx-toastr": "^20.0.5",
-    "openai": "^6.31.0",
-    "pg": "^8.21.0",
-    "pg-hstore": "^2.3.4",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
-    "@angular/build": "^21.1.4",
-    "@angular/cli": "^21.1.4",
-    "@angular/compiler-cli": "^21.1.0",
-    "@angular/localize": "^21.1.4",
-    "@types/bootstrap": "^5.2.10",
-    "@types/express": "^5.0.1",
-    "@types/node": "^20.17.19",
-    "chai": "^4.5.0",
-    "chai-http": "^4.4.0",
-    "jsdom": "^27.1.0",
     "mocha": "^11.7.5",
-    "supertest": "^7.2.2",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
-  },
-  "description": "This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/muzy326/car_application.git"
-  },
-  "bugs": {
-    "url": "https://github.com/muzy326/car_application/issues"
-  },
-  "homepage": "https://github.com/muzy326/car_application#readme"
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
+  }
 }
