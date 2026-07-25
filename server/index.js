@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 // ------------------ MIDDLEWARE ------------------
 app.use(cors({
-  origin: "http://localhost:4200",
+  origin: true, // allow all origins (Replit proxy, localhost, etc.)
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
