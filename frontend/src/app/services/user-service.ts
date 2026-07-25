@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
@@ -11,7 +12,10 @@ export class UserService {
 
   private baseUrl = `${environment.apiUrl}/users`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
  
   register(user: User): Observable<any> {
@@ -22,9 +26,10 @@ export class UserService {
     localStorage.clear(); // optional helper only
   }
 
-  /** Get JWT headers */
   private getAuthHeaders(): { headers: HttpHeaders } {
-    const token = localStorage.getItem('token') || '';
+    const token = isPlatformBrowser(this.platformId)
+      ? localStorage.getItem('token') || ''
+      : '';
     return { headers: new HttpHeaders({ 'Authorization': `Bearer ${token}` }) };
   }
 
@@ -50,9 +55,10 @@ export class UserService {
 
   /** Add new user (Admin) */
   addUser(user: User): Observable<User> {
+    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') || '' : '';
     return this.http.post<User>(this.baseUrl, user, {
       headers: new HttpHeaders({
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       })
     });

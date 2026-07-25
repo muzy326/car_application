@@ -34,14 +34,13 @@ export class NavBarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-     
-    const id = localStorage.getItem('latestBookingId');
-  this.latestBookingId = id ? Number(id) : null;
-
+    // Always establish browser context first before touching any browser APIs
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
-      
+      const id = localStorage.getItem('latestBookingId');
+      this.latestBookingId = id ? Number(id) : null;
+
       this.displayName = localStorage.getItem('name') || '';
 
      const role = localStorage.getItem('role');

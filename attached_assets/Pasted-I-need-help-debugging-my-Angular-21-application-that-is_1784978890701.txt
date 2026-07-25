@@ -1,0 +1,128 @@
+I need help debugging my Angular 21 application that is deployed with Docker on AWS EC2.
+
+## Project Stack
+- Angular 21 standalone application
+- Node.js + Express backend
+- PostgreSQL
+- Docker Compose
+- Nginx serving Angular static files
+- Backend running on port 3000
+- Frontend served on port 80
+
+## Current Problem
+
+The Angular application builds successfully.
+
+Docker containers all start successfully.
+
+Nginx serves index.html and all JS bundles successfully.
+
+However when opening the site
+
+http://<EC2-IP>
+
+the page is completely blank.
+
+Chrome Console shows
+
+ERROR NG0203
+
+and Angular crashes before rendering the login page.
+
+No Angular components appear.
+
+The backend is healthy.
+
+## Backend Status
+
+docker compose logs backend shows
+
+- PostgreSQL connected
+- Server running
+- Login endpoint exists
+- No crashes
+
+The log
+
+Authorization Header: undefined
+No token received
+
+during POST /api/login is expected because login happens before a JWT exists.
+
+So the backend is NOT the issue.
+
+## Frontend Status
+
+Angular version
+
+@angular/core 21.2.17
+
+Standalone application
+
+bootstrapApplication(AppComponent, appConfig)
+
+No SSR.
+
+provideClientHydration() is disabled.
+
+app.config.ts
+
+provideRouter(routes)
+provideAnimations()
+provideToastr()
+provideHttpClient(withFetch(), withInterceptorsFromDi())
+
+HTTP interceptor registered.
+
+AuthInterceptor only injects PLATFORM_ID
+
+private platformId = inject(PLATFORM_ID);
+
+and only accesses localStorage when
+
+isPlatformBrowser(platformId)
+
+is true.
+
+Functional auth guard uses
+
+const router = inject(Router);
+
+which is valid.
+
+## AppComponent
+
+AppComponent imports
+
+RouterModule
+NavBarComponent
+FooterComponent
+ChatbotComponent
+
+## What I need
+
+Please perform a full investigation.
+
+Do NOT randomly rewrite files.
+
+Instead:
+
+1. Find the real cause of NG0203.
+2. Search every service, component, guard and interceptor.
+3. Check for illegal usage of inject().
+4. Check for inject() being called outside Angular injection context.
+5. Check constructors accessing browser APIs before Angular initialization.
+6. Check static variables using inject().
+7. Check field initializers using inject().
+8. Check top-level code accessing localStorage/document/window.
+9. Check for circular dependency.
+10. Check standalone component imports.
+11. Check providers.
+12. Check router configuration.
+13. Explain exactly WHY NG0203 occurs.
+14. Point to the exact file and line.
+15. Suggest the minimum fix.
+
+Do not guess.
+
+Please explain your reasoning step by step before suggesting changes.

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, Input, OnInit, PLATFORM_ID } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
@@ -24,11 +24,12 @@ export class BookingFormComponent implements OnInit {
   submitted = false;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private fb: FormBuilder,
     private bookingService: BookingService,
     private router: Router,
-    private toastr: ToastrService 
-  ) { 
+    private toastr: ToastrService
+  ) {
     this.bookingForm = this.fb.group({
     startDate: ['', Validators.required],
     endDate: ['', Validators.required]
@@ -52,13 +53,13 @@ export class BookingFormComponent implements OnInit {
       return;
     }
 
-    const token = localStorage.getItem('token');
+    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
 
     if (!token) {
-    this.toastr.warning('Please login first!');
-    this.router.navigate(['/login']);
-    return;
-}
+      this.toastr.warning('Please login first!');
+      this.router.navigate(['/login']);
+      return;
+    }
 
     const bookingPayload = {
       car_id: this.car.id!,

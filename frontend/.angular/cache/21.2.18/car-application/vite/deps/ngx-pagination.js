@@ -3,8 +3,8 @@ import {
   DecimalPipe,
   NgForOf,
   NgIf
-} from "./chunk-4VPRJX7T.js";
-import "./chunk-3GGOLQDL.js";
+} from "./chunk-7VNABXTG.js";
+import "./chunk-67CLMYGY.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,

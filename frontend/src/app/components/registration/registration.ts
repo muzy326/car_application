@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -28,6 +28,7 @@ export class RegistrationComponent {
   };
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private authService: AuthService,
     private router: Router,
     private toastr: ToastrService
@@ -58,10 +59,12 @@ export class RegistrationComponent {
     this.authService.register(userData).subscribe({
       next: (res) => {
         this.loading = false;
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('name', res.user.firstname);
-        localStorage.setItem('role', res.user.role);
-        localStorage.setItem('phonenumber', res.user.phonenumber);
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('name', res.user.firstname);
+          localStorage.setItem('role', res.user.role);
+          localStorage.setItem('phonenumber', res.user.phonenumber);
+        }
         this.toastr.success('Registration Successful ✅');
         form.resetForm();
         this.router.navigate(['/home']);

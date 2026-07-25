@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -8,13 +9,17 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class CarService {
 
-  private baseUrl = `${environment.apiUrl}/cars`; // Backend API URL
+  private baseUrl = `${environment.apiUrl}/cars`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
-  /** Authorization headers */
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || '';
+    const token = isPlatformBrowser(this.platformId)
+      ? localStorage.getItem('token') || ''
+      : '';
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 

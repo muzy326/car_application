@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -22,16 +22,19 @@ export class LoginComponent {
   };
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private authService: AuthService,
     private toastr: ToastrService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
-    // Auto redirect if token exists
-    const token = localStorage.getItem('token');
-    if (token) {
-      setTimeout(() => this.router.navigate(['/home']), 0);
+    // Auto redirect if token exists — guarded so it never runs server-side
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setTimeout(() => this.router.navigate(['/home']), 0);
+      }
     }
   }
  

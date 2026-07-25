@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Booking } from '../models/booking.model';
 import { Observable } from 'rxjs';
@@ -12,18 +13,17 @@ export class BookingService {
   // Backend URL from environment (works in Docker)
   private baseUrl = `${environment.apiUrl}/bookings`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
- 
   private getAuthHeaders(): HttpHeaders {
-  const token = localStorage.getItem('token'); 
-  if (!token) {
-    console.warn('No JWT token found in localStorage!');
+    const token = isPlatformBrowser(this.platformId)
+      ? localStorage.getItem('token') ?? ''
+      : '';
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
-  return new HttpHeaders({
-    'Authorization': `Bearer ${token ?? ''}`
-  });
-}
 
   /** ---------------- CREATE ---------------- */
   createBooking(booking: Partial<Booking>): Observable<Booking> {

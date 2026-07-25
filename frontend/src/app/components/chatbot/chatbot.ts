@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-chatbot',
@@ -38,7 +39,7 @@ export class ChatbotComponent {
 
     // API call
     this.loading = true;
-    this.http.post<any>('http://localhost:3000/api/chat', { message: msg }).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/chat`, { message: msg }).subscribe({
       next: res => {
         this.loading = false;
         const reply = res.reply || 'Sorry, no reply.';
