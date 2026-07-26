@@ -23,7 +23,7 @@ export class UserService {
   }
   
   logout() {
-    localStorage.clear(); // optional helper only
+    if (isPlatformBrowser(this.platformId)) localStorage.clear();
   }
 
   private getAuthHeaders(): { headers: HttpHeaders } {

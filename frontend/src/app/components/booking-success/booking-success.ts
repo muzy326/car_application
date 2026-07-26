@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 
@@ -11,25 +10,20 @@ import { BookingService } from '../../services/booking.service';
   styleUrl: './booking-success.css',
 })
 export class BookingSuccessComponent implements OnInit {
-booking: any;
+  booking: any;
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private bookingService: BookingService
+  ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
     const bookingId = localStorage.getItem('latestBookingId');
-
     if (bookingId) {
-
       this.bookingService.getBookingById(Number(bookingId))
-        .subscribe(data => {
-
-          this.booking = data;
-
-        });
-
+        .subscribe(data => { this.booking = data; });
     }
-
   }
-
 }

@@ -84,7 +84,9 @@ export class BookingFormComponent implements OnInit {
       this.loading = false;
 
       // Save booking ID
-      localStorage.setItem('latestBookingId', res.id);
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('latestBookingId', res.id);
+      }
        // ✅ Angular toast
     //this.toastr.success('Booking completed successfully!');
 

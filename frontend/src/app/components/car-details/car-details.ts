@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CarService } from '../../services/car-service';
 import { Car } from '../../models/car.model';
-import { CommonModule } from '@angular/common';
 import { BookingFormComponent } from '../booking-form/booking-form';
 import { firstValueFrom } from 'rxjs';
 
@@ -22,6 +22,7 @@ export class CarDetailsComponent implements OnInit {
   fallbackImage = 'assets/no-image.jpg';
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private carService: CarService,
     private route: ActivatedRoute,
     private router: Router,
@@ -38,12 +39,13 @@ export class CarDetailsComponent implements OnInit {
 
     const id = Number(idParam);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('You must login to view details.');
-      this.router.navigate(['/login']);
-      this.loading = false;
-      return;
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.router.navigate(['/login']);
+        this.loading = false;
+        return;
+      }
     }
 
     await this.loadCar(id);
@@ -52,8 +54,6 @@ export class CarDetailsComponent implements OnInit {
   private async loadCar(id: number): Promise<void> {
     try {
       const car = await firstValueFrom(this.carService.getCarById(id));
-
-      // Safe fallback values
       this.car = {
         ...car,
         description: car.description || 'No description available',
@@ -61,7 +61,6 @@ export class CarDetailsComponent implements OnInit {
         rating: car.rating ?? 0,
         discount: car.discount ?? 0,
       };
-
       this.loading = false;
       this.cdr.detectChanges();
     } catch (err) {
@@ -81,7 +80,6 @@ export class CarDetailsComponent implements OnInit {
     event.target.src = this.fallbackImage;
   }
 
-  // ✅ Added getStars method for template
   getStars(rating: number): boolean[] {
     const fullStars = Math.floor(rating);
     return Array.from({ length: 5 }, (_, i) => i < fullStars);

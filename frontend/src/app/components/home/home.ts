@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -10,16 +10,22 @@ import { ReactiveFormsModule } from '@angular/forms';
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
-export class HomeComponent {
-  constructor(private router: Router) {}
+export class HomeComponent implements OnInit {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
+    if (isPlatformBrowser(this.platformId) && localStorage.getItem('token')) {
       this.router.navigate(['/home']);
     }
   }
 
   goToLogin() { this.router.navigate(['/login']); }
   goToRegister() { this.router.navigate(['/registration']); }
-  logout() { localStorage.clear(); this.router.navigate(['/login']); }
+  logout() {
+    if (isPlatformBrowser(this.platformId)) localStorage.clear();
+    this.router.navigate(['/login']);
+  }
 }
