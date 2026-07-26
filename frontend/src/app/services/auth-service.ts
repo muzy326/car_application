@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   get isAdmin(): boolean {
-    return this.role === 'Admin';
+    return this.role?.toLowerCase() === 'admin';
   }
 
   // ---------------- HELPERS ----------------

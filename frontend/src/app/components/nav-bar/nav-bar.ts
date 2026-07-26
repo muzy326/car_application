@@ -75,10 +75,19 @@ console.log("USERID:", localStorage.getItem('userId'));
       }
     }
 
-    // close menus on route change
+    // Re-read auth state and close menus on every route change
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => this.closeMenus());
+      .subscribe(() => {
+        this.closeMenus();
+        if (this.isBrowser) {
+          this.displayName = localStorage.getItem('name') || null;
+          const role = localStorage.getItem('role');
+          this.isAdmin = role ? role.trim().toLowerCase() === 'admin' : false;
+          const userIdStr = localStorage.getItem('userId');
+          this.userId = userIdStr ? Number(userIdStr) : null;
+        }
+      });
   }
 
   toggleCollapse() {

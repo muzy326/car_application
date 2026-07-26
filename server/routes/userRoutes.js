@@ -29,14 +29,3 @@ router.put('/:id', authenticateToken, authorizeRoles(['Admin']), updateUser);   
 router.delete('/:id', authenticateToken, authorizeRoles(['Admin']), deleteUser);  // Delete user
 
 module.exports = router;
-
-
-console.log({
-  getAllUsers,
-  registerUser,
-  loginUser,
-  getProfile,
-  getUserById,
-  updateUser,
-  deleteUser
-});
