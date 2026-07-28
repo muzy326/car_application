@@ -3,52 +3,65 @@ const pool = require('../db');
 // GET all cars
 exports.getAllCars = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM cars ORDER BY id ASC');
+    const result = await pool.query(`
+      SELECT
+        id,
+        carname,
+        price,
+        "imageUrl" AS "imageUrl",
+        description,
+        available,
+        type,
+        rating,
+        discount
+      FROM cars
+      ORDER BY id ASC
+    `);
 
-    const cars = result.rows.map(car => ({
-      id: car.id,
-      carname: car.carname,
-      price: car.price,
-      imageUrl: car.imageUrl || '',
-      description: car.description || 'No description available',
-      available: car.available ?? true,
-      type: car.type || 'General',
-      rating: car.rating ?? 5,
-      discount: car.discount ?? 0
-    }));
+    res.json(result.rows);
 
-    res.json(cars);
   } catch (err) {
-    console.error('Error fetching cars:', err);
-    res.status(500).json({ message: 'Error fetching cars', error: err.message });
+    console.error(err);
+    res.status(500).json({
+      message: 'Error fetching cars',
+      error: err.message
+    });
   }
 };
 
 // GET single car
 exports.getCarById = async (req, res) => {
-  const id = Number(req.params.id);
   try {
-    const result = await pool.query('SELECT * FROM cars WHERE id=$1', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ message: 'Car not found' });
 
-    const car = result.rows[0];
-    res.json({
-      id: car.id,
-      carname: car.carname,
-      price: car.price,
-      imageUrl: car.imageUrl || '',
-      description: car.description || 'No description available',
-      available: car.available ?? true,
-      type: car.type || 'General',
-      rating: car.rating ?? 5,
-      discount: car.discount ?? 0
+    const result = await pool.query(`
+      SELECT
+        id,
+        carname,
+        price,
+        "imageUrl" AS "imageUrl",
+        description,
+        available,
+        type,
+        rating,
+        discount
+      FROM cars
+      WHERE id=$1
+    `,[req.params.id]);
+
+    if(result.rows.length===0){
+      return res.status(404).json({message:"Car not found"});
+    }
+
+    res.json(result.rows[0]);
+
+  } catch(err){
+    console.error(err);
+    res.status(500).json({
+      message:"Error fetching car",
+      error:err.message
     });
-  } catch (err) {
-    console.error('Error fetching car:', err);
-    res.status(500).json({ message: 'Error fetching car', error: err.message });
   }
 };
-
 // CREATE car
 exports.createCar = async (req, res) => {
   const { carname, price, imageUrl, available, description, type, rating, discount } = req.body;
