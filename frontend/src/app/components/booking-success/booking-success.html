@@ -1,65 +1,73 @@
-<div class="container mt-5">
-  <div class="card shadow text-center p-5">
+<div class="success-page">
 
-    <h1 class="text-success mb-3">
-      🎉 Booking Successful!
-    </h1>
+  <!-- Confetti dots (CSS only) -->
+  <div class="confetti-wrap" aria-hidden="true">
+    <div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div>
+    <div class="dot dot-4"></div><div class="dot dot-5"></div><div class="dot dot-6"></div>
+    <div class="dot dot-7"></div><div class="dot dot-8"></div>
+  </div>
 
-    <p class="lead">
-      Thank you for booking with us.
-    </p>
+  <div class="container">
+    <div class="success-card animate-scale-in">
 
-    <p>
-      Your booking request has been received and is currently
-      <strong>Pending Confirmation</strong>.
-    </p>
+      <!-- Check animation -->
+      <div class="success-icon-wrap">
+        <div class="success-pulse"></div>
+        <div class="success-icon">
+          <i class="bi bi-check2"></i>
+        </div>
+      </div>
 
-    <!-- Booking Details -->
-    <div *ngIf="booking" class="my-4">
+      <h1 class="success-title">Booking Confirmed!</h1>
+      <p class="success-sub">Your reservation has been received and is being processed. We'll notify you shortly.</p>
 
-      <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+      <!-- Booking details -->
+      <div *ngIf="booking" class="booking-detail-box animate-fade-up delay-2">
+        <div class="bd-header">
+          <i class="bi bi-receipt me-2"></i>Booking Summary
+        </div>
+        <div class="bd-grid">
+          <div class="bd-item">
+            <span class="bd-label">Booking ID</span>
+            <span class="bd-val">#{{ booking.id }}</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">Status</span>
+            <span class="bd-val">
+              <span class="status-badge">{{ booking.status }}</span>
+            </span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">Start Date</span>
+            <span class="bd-val">{{ booking.start_date | date:'mediumDate' }}</span>
+          </div>
+          <div class="bd-item">
+            <span class="bd-label">End Date</span>
+            <span class="bd-val">{{ booking.end_date | date:'mediumDate' }}</span>
+          </div>
+          <div class="bd-item" *ngIf="booking.pricePerDay">
+            <span class="bd-label">Price / Day</span>
+            <span class="bd-val">${{ booking.pricePerDay }}</span>
+          </div>
+        </div>
+      </div>
 
-      <p><strong>Status:</strong> {{ booking.status }}</p>
-
-      <p><strong>Car ID:</strong> {{ booking.car_id }}</p>
-
-      <p><strong>Start Date:</strong> {{ booking.start_date | date }}</p>
-
-      <p><strong>End Date:</strong> {{ booking.end_date | date }}</p>
-
-      <p><strong>Price Per Day:</strong> {{ booking.pricePerDay }}</p>
+      <!-- Action buttons -->
+      <div class="success-actions animate-fade-up delay-3">
+        <a *ngIf="booking" [routerLink]="['/booking-bill', booking.id]" class="btn-premium">
+          <i class="bi bi-receipt me-2"></i>View Bill
+        </a>
+        <a routerLink="/my-bookings" class="btn-success-outline">
+          <i class="bi bi-calendar-check me-2"></i>My Bookings
+        </a>
+        <a routerLink="/home" class="btn-success-outline">
+          <i class="bi bi-house me-2"></i>Home
+        </a>
+        <a routerLink="/cars" class="btn-success-outline">
+          <i class="bi bi-car-front me-2"></i>More Cars
+        </a>
+      </div>
 
     </div>
-
-    <!-- Action Buttons -->
-    <div class="mt-4">
-
-      <button
-        *ngIf="booking"
-        class="btn btn-primary me-2"
-        [routerLink]="['/booking-bill', booking.id]">
-        View Bill
-      </button>
-
-      <button
-        class="btn btn-success me-2"
-        routerLink="/my-bookings">
-        My Bookings
-      </button>
-
-      <a
-        routerLink="/home"
-        class="btn btn-info me-2">
-        Go to Home
-      </a>
-
-      <a
-        routerLink="/cars"
-        class="btn btn-outline-secondary">
-        View More Cars
-      </a>
-
-    </div>
-
   </div>
 </div>

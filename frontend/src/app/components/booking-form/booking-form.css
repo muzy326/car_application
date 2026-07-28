@@ -1,0 +1,157 @@
+.booking-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+}
+
+.booking-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bp-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(37,99,235,.3);
+  flex-shrink: 0;
+}
+
+.booking-panel-header h5 { font-weight: 700; color: #0F172A; margin: 0 0 2px; font-size: .95rem; }
+.booking-panel-header p  { color: #64748b; font-size: .8rem; margin: 0; }
+
+.date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.date-field { display: flex; flex-direction: column; }
+
+.date-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.date-input {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .85rem;
+  color: #0F172A;
+  transition: all .25s ease;
+  background: #f8fafc;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+  background: #fff;
+}
+
+.date-error { border-color: #ef4444 !important; }
+.date-error-msg { font-size: .74rem; color: #ef4444; margin-top: 4px; font-weight: 500; }
+
+/* Price preview */
+.price-preview {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.pp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .84rem;
+  color: #64748b;
+  padding: 4px 0;
+}
+
+.pp-val { font-weight: 600; color: #374151; }
+.pp-discount { color: #10B981; }
+
+.pp-divider { height: 1px; background: #e2e8f0; margin: 10px 0; }
+
+.pp-total { font-weight: 700; }
+.pp-total span:first-child { color: #0F172A; }
+.pp-total-val { color: #2563EB; font-size: 1.1rem; }
+
+/* Warning */
+.avail-warning {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #92400e;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: .83rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* Submit button */
+.btn-book-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s ease;
+  box-shadow: 0 6px 20px rgba(37,99,235,.35);
+  margin-bottom: 16px;
+}
+
+.btn-book-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(37,99,235,.45);
+}
+
+.btn-book-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Info chips */
+.booking-info-chips {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.info-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.info-chip i { color: #10B981; }
+
+@media (max-width: 480px) {
+  .date-grid { grid-template-columns: 1fr; }
+}

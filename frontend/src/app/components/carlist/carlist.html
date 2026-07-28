@@ -1,78 +1,140 @@
-<div class="container my-4">
-  <h2 class="mb-3 text-center">Available Cars</h2>
-
-  <!-- Search Input -->
-  <div class="mb-3">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Search by name"
-      [(ngModel)]="searchTerm"
-    />
+<!-- Page Header -->
+<div class="cars-header">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 animate-fade-up">
+        <h1 class="cars-title">Our <span class="gradient-text">Premium Fleet</span></h1>
+        <p class="cars-subtitle">Discover world-class vehicles for every journey and budget.</p>
+      </div>
+      <div class="col-lg-6 animate-fade-up delay-2">
+        <!-- Search -->
+        <div class="search-container">
+          <i class="bi bi-search search-icon-input"></i>
+          <input
+            type="text"
+            class="premium-search"
+            placeholder="Search by car name..."
+            [(ngModel)]="searchTerm"
+          />
+          <div class="search-clear" *ngIf="searchTerm" (click)="searchTerm=''">
+            <i class="bi bi-x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="text-center my-4">
-    <div class="spinner-border text-primary" role="status"></div>
-  </div>
-
-  <!-- Cars List -->
-  <div class="row">
-    <div *ngFor="let car of cars" class="col-md-4 mb-4">
-      <div class="card h-100 car-card"
-           (mouseenter)="car.hover = true"
-           (mouseleave)="car.hover = false"
-           [ngStyle]="{'transform': car.hover ? 'scale(1.03)' : 'scale(1)', 'box-shadow': car.hover ? '0 10px 30px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.1)'}">
-
-        <div *ngIf="(car.discount ?? 0) > 0" class="ribbon">
-  -{{ car.discount }}%
 </div>
 
-        <!-- Car Image -->
-        <img 
-          [src]="car.imageUrl"
-          (error)="$event.target.src='assets/no-image.jpg'"
-          class="card-img-top"
-          alt="{{car.carname}}"
-          height="200"
-        />
+<div class="container cars-body">
 
-        <div class="card-body">
-          <h5 class="card-title">{{ car.carname }}</h5>
-          <p class="card-text">{{ car.description }}</p>
-          <p class="card-text"><strong>Type:</strong> {{ car.type || 'General' }}</p>
-          <p class="card-text"><strong>Price:</strong> ${{ car.price }}</p>
-
-          <!-- Star Rating -->
-          <div class="star-rating mb-2">
-            <ng-container *ngFor="let filled of getStars(car.rating); let i = index">
-              <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-            </ng-container>
-          </div>
-
-          <p class="card-text">
-            <span class="badge" [ngClass]="car.available ? 'bg-success' : 'bg-danger'">
-              {{ car.available ? 'Available' : 'Not Available' }}
-            </span>
-          </p>
-        </div>
-
-        <div class="card-footer text-center">
-          <a
-            [routerLink]="['/car', car.id]"
-            class="btn btn-primary"
-            [ngClass]="{'disabled btn-secondary': !car.available}"
-            [attr.aria-disabled]="!car.available"
-          >
-            View Details
-          </a>
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading" class="row g-4">
+    <div *ngFor="let i of [1,2,3,4,5,6]" class="col-md-4">
+      <div class="car-skeleton">
+        <div class="skeleton sk-img"></div>
+        <div class="sk-body">
+          <div class="skeleton sk-title"></div>
+          <div class="skeleton sk-text"></div>
+          <div class="skeleton sk-btn"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- No Cars Found -->
-  <div *ngIf="!loading && cars.length === 0" class="text-center mt-4">
-    <p>No cars found.</p>
+  <!-- Cars Grid -->
+  <div class="row g-4" *ngIf="!loading">
+    <div *ngFor="let car of cars" class="col-md-6 col-lg-4 animate-fade-up">
+      <div class="car-card-premium" [class.unavailable-card]="!car.available">
+
+        <!-- Discount ribbon -->
+        <div class="discount-ribbon" *ngIf="(car.discount ?? 0) > 0">
+          -{{ car.discount }}% OFF
+        </div>
+
+        <!-- Image -->
+        <div class="car-img-wrap">
+          <img
+            [src]="car.imageUrl"
+            (error)="$event.target.src='assets/no-image.jpg'"
+            class="car-img"
+            [alt]="car.carname"
+            loading="lazy"
+          />
+          <!-- Availability overlay -->
+          <div class="unavail-overlay" *ngIf="!car.available">
+            <span><i class="bi bi-slash-circle me-2"></i>Not Available</span>
+          </div>
+          <!-- Favourite placeholder -->
+          <button class="fav-btn" aria-label="Add to favourites">
+            <i class="bi bi-heart"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="car-card-body">
+          <!-- Header row -->
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h5 class="car-name">{{ car.carname }}</h5>
+              <span class="car-type-badge">
+                <i class="bi bi-tag-fill me-1"></i>{{ car.type || 'General' }}
+              </span>
+            </div>
+            <div class="car-price-block">
+              <span class="car-price">${{ car.price }}</span>
+              <span class="car-price-unit">/day</span>
+            </div>
+          </div>
+
+          <!-- Stars -->
+          <div class="stars mb-2">
+            <ng-container *ngFor="let filled of getStars(car.rating); let i = index">
+              <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
+            </ng-container>
+            <span class="star-count">{{ car.rating }}/5</span>
+          </div>
+
+          <!-- Description -->
+          <p class="car-desc">{{ car.description }}</p>
+
+          <!-- Availability -->
+          <div class="avail-row mb-3">
+            <span class="avail-badge" [class.avail-yes]="car.available" [class.avail-no]="!car.available">
+              <i class="bi" [ngClass]="car.available ? 'bi-circle-fill' : 'bi-slash-circle'"></i>
+              {{ car.available ? 'Available' : 'Unavailable' }}
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="car-actions">
+            <a
+              [routerLink]="['/car', car.id]"
+              class="btn-view-detail"
+              [class.disabled-btn]="!car.available"
+              [attr.aria-disabled]="!car.available"
+            >
+              <i class="bi bi-eye me-2"></i>View Details
+            </a>
+            <a
+              *ngIf="car.available"
+              [routerLink]="['/car', car.id]"
+              class="btn-book-now"
+            >
+              Book <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+
+  <!-- No Results -->
+  <div *ngIf="!loading && cars.length === 0" class="empty-state animate-scale-in">
+    <div class="empty-icon"><i class="bi bi-car-front"></i></div>
+    <h4>No cars found</h4>
+    <p>Try adjusting your search to find available vehicles.</p>
+    <button class="btn-premium" (click)="searchTerm=''">Clear Search</button>
+  </div>
+
 </div>

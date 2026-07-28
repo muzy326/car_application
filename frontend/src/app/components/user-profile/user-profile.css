@@ -1,0 +1,140 @@
+.profile-page { background: #f8fafc; min-height: 100vh; }
+
+.profile-header {
+  background: linear-gradient(135deg, #0f172a, #1e1b4b);
+  padding: 48px 0 80px;
+}
+
+.profile-avatar-large {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.8rem; font-weight: 800;
+  box-shadow: 0 8px 24px rgba(37,99,235,.4);
+  flex-shrink: 0;
+}
+
+.profile-name  { font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0 0 4px; }
+.profile-email { color: #94a3b8; font-size: .88rem; margin: 0; }
+
+.profile-body { padding-top: 36px; margin-top: -48px; padding-bottom: 60px; }
+
+.profile-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+.profile-card-header {
+  display: flex; align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  font-weight: 700; color: #0F172A;
+  font-size: .9rem;
+  background: #f8fafc;
+}
+
+.profile-card-body { padding: 24px; }
+
+/* Fields */
+.field-label { font-size: .8rem; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+
+.field-wrap {
+  position: relative; display: flex; align-items: center;
+}
+
+.field-icon {
+  position: absolute; left: 14px;
+  color: #9ca3af; font-size: .9rem; pointer-events: none;
+}
+
+.field-input {
+  width: 100%;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 11px 14px 11px 40px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .88rem;
+  color: #0F172A;
+  transition: all .25s ease;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+  background: #fff;
+}
+
+.field-readonly { background: #f1f5f9; color: #64748b; cursor: not-allowed; }
+.field-readonly:focus { border-color: #e2e8f0; box-shadow: none; }
+
+.field-hint { font-size: .74rem; color: #94a3b8; margin: 5px 0 0; }
+
+/* Buttons */
+.btn-save {
+  display: inline-flex; align-items: center;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  color: #fff; border: none; border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .9rem; font-weight: 600;
+  cursor: pointer;
+  transition: all .3s ease;
+  box-shadow: 0 4px 14px rgba(37,99,235,.3);
+}
+
+.btn-save:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,.4); }
+.btn-save:disabled { opacity: .6; cursor: not-allowed; }
+
+.btn-cancel {
+  display: inline-flex; align-items: center;
+  padding: 12px 24px;
+  background: transparent; color: #64748b;
+  border: 2px solid #e2e8f0; border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .9rem; font-weight: 600;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.btn-cancel:hover { border-color: #64748b; color: #374151; }
+
+/* Account stats */
+.account-stat {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.account-stat:last-child { border-bottom: none; }
+
+.as-icon {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; flex-shrink: 0;
+}
+
+.as-blue   { background: #dbeafe; color: #2563EB; }
+.as-green  { background: #d1fae5; color: #10B981; }
+
+.as-label { font-size: .72rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.as-val   { font-size: .88rem; font-weight: 600; color: #0F172A; margin-top: 2px; }
+
+/* Quick links */
+.quick-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 24px;
+  color: #374151; text-decoration: none;
+  font-size: .88rem; font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all .2s ease;
+}
+
+.quick-link:last-child { border-bottom: none; }
+.quick-link:hover { background: #f8fafc; color: #2563EB; padding-left: 28px; }
+.quick-link i:first-child { width: 20px; color: #2563EB; }

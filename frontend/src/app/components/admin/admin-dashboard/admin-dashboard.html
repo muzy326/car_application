@@ -1,114 +1,175 @@
-<div class="container mt-4">
+<div class="admin-page">
 
-  <h3 class="mb-4">Admin Dashboard</h3>
-
-  <!-- Action Buttons -->
-  <div class="mb-3">
-    <a routerLink="/admin/cars" class="btn btn-primary me-2">Manage Cars</a>
-    <a routerLink="/admin/users" class="btn btn-secondary me-2">Manage Users</a>
-    <a routerLink="/admin/bookings" class="btn btn-success me-2">View Bookings</a>
-    <a routerLink="/admin/reports" class="btn btn-dark">Reports</a>
+  <!-- Admin header -->
+  <div class="admin-header">
+    <div class="container-fluid px-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="admin-icon"><i class="bi bi-speedometer2"></i></div>
+          <div>
+            <h1 class="admin-title">Admin Dashboard</h1>
+            <p class="admin-sub">Real-time analytics & management</p>
+          </div>
+        </div>
+        <!-- Quick actions -->
+        <div class="d-flex gap-2 flex-wrap">
+          <a routerLink="/admin/cars" class="btn-admin-action">
+            <i class="bi bi-car-front me-2"></i>Cars
+          </a>
+          <a routerLink="/admin/users" class="btn-admin-action">
+            <i class="bi bi-people me-2"></i>Users
+          </a>
+          <a routerLink="/admin/bookings" class="btn-admin-action btn-admin-primary">
+            <i class="bi bi-calendar-check me-2"></i>Bookings
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Statistics Cards -->
-  <div class="row mb-4 text-center">
+  <div class="container-fluid px-4 admin-body">
 
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Cars</h5>
-          <h3 class="text-primary">{{ totalCars }}</h3>
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-6 col-xl-3 animate-fade-up">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon"><i class="bi bi-car-front-fill"></i></div>
+          <div class="kpi-content">
+            <div class="kpi-num">{{ totalCars }}</div>
+            <div class="kpi-label">Total Cars</div>
+          </div>
+          <div class="kpi-trend"><i class="bi bi-graph-up-arrow"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3 animate-fade-up delay-1">
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+          <div class="kpi-content">
+            <div class="kpi-num">{{ totalUsers }}</div>
+            <div class="kpi-label">Total Users</div>
+          </div>
+          <div class="kpi-trend"><i class="bi bi-graph-up-arrow"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3 animate-fade-up delay-2">
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon"><i class="bi bi-calendar-check-fill"></i></div>
+          <div class="kpi-content">
+            <div class="kpi-num">{{ totalBookings }}</div>
+            <div class="kpi-label">Total Bookings</div>
+          </div>
+          <div class="kpi-trend"><i class="bi bi-graph-up-arrow"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3 animate-fade-up delay-3">
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-icon"><i class="bi bi-activity"></i></div>
+          <div class="kpi-content">
+            <div class="kpi-num">{{ activeRentals }}</div>
+            <div class="kpi-label">Active Rentals</div>
+          </div>
+          <div class="kpi-trend"><i class="bi bi-lightning-charge-fill"></i></div>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Users</h5>
-          <h3 class="text-success">{{ totalUsers }}</h3>
+    <!-- Charts Row 1 -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6 animate-fade-up delay-1">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-blue"></div>
+              <h5>Car Types Distribution</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <donut-chart
+              *ngIf="topCarsData.length"
+              [data]="topCarsData"
+              [keys]="{ label: 'name', value: 'value' }"
+              [title]="'Car Types Distribution'"
+              [noDataText]="'No car data available!'">
+            </donut-chart>
+            <div *ngIf="!topCarsData.length" class="chart-empty">
+              <i class="bi bi-pie-chart"></i><p>No data yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 animate-fade-up delay-2">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-purple"></div>
+              <h5>Booking Status</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <pie-chart
+              *ngIf="bookingStatusData.length"
+              [data]="bookingStatusData"
+              [keys]="{ label: 'name', value: 'value' }"
+              [title]="'Booking Status Distribution'"
+              [noDataText]="'No booking status data available!'">
+            </pie-chart>
+            <div *ngIf="!bookingStatusData.length" class="chart-empty">
+              <i class="bi bi-pie-chart"></i><p>No data yet</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Bookings</h5>
-          <h3 class="text-warning">{{ totalBookings }}</h3>
+    <!-- Charts Row 2 -->
+    <div class="row g-4">
+      <div class="col-lg-6 animate-fade-up delay-1">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-green"></div>
+              <h5>Monthly Booking Trends</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <bar-chart
+              *ngIf="monthlyBookingData.length"
+              [data]="monthlyBookingData"
+              [categoryField]="'name'"
+              [valueField]="'value'"
+              [title]="'Monthly Booking Trends'"
+              [noDataText]="'No monthly data available!'">
+            </bar-chart>
+            <div *ngIf="!monthlyBookingData.length" class="chart-empty">
+              <i class="bi bi-bar-chart"></i><p>No data yet</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Active Rentals</h5>
-          <h3 class="text-danger">{{ activeRentals }}</h3>
+      <div class="col-lg-6 animate-fade-up delay-2">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-orange"></div>
+              <h5>Daily Booking Trends</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <bar-chart
+              *ngIf="dailyBookingData.length"
+              [data]="dailyBookingData"
+              [categoryField]="'name'"
+              [valueField]="'value'"
+              [title]="'Daily Booking Trends'"
+              [noDataText]="'No daily data available!'">
+            </bar-chart>
+            <div *ngIf="!dailyBookingData.length" class="chart-empty">
+              <i class="bi bi-bar-chart"></i><p>No data yet</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
   </div>
-
-  <!-- Charts Row 1 -->
-  <div class="row mb-4">
-
-    <div class="col-md-6 mb-3">
-
-      <donut-chart
-        *ngIf="topCarsData.length"
-        [data]="topCarsData"
-        [keys]="{ label: 'name', value: 'value' }"
-        [title]="'Car Types Distribution'"
-        [noDataText]="'No car data available!'">
-      </donut-chart>
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-      <pie-chart
-        *ngIf="bookingStatusData.length"
-        [data]="bookingStatusData"
-        [keys]="{ label: 'name', value: 'value' }"
-        [title]="'Booking Status Distribution'"
-        [noDataText]="'No booking status data available!'">
-      </pie-chart>
-
-    </div>
-
-  </div>
-
-  <!-- Charts Row 2 -->
-  <div class="row mb-4">
-
-    <div class="col-md-6 mb-3">
-
-      <bar-chart
-        *ngIf="monthlyBookingData.length"
-        [data]="monthlyBookingData"
-        [categoryField]="'name'"
-        [valueField]="'value'"
-        [title]="'Monthly Booking Trends'"
-        [noDataText]="'No monthly data available!'">
-      </bar-chart>
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-      <bar-chart
-        *ngIf="dailyBookingData.length"
-        [data]="dailyBookingData"
-        [categoryField]="'name'"
-        [valueField]="'value'"
-        [title]="'Daily Booking Trends'"
-        [noDataText]="'No daily data available!'">
-      </bar-chart>
-
-    </div>
-
-  </div>
-
 </div>

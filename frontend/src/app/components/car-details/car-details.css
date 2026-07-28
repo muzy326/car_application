@@ -1,27 +1,210 @@
-.car-card-bg {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+/* ─── Loading ─────────────────────────────────────────── */
+.detail-loading { padding: 40px 0 80px; background: #f8fafc; }
+
+/* ─── Error ───────────────────────────────────────────── */
+.error-icon {
+  width: 72px; height: 72px;
+  background: #fee2e2; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; color: #ef4444;
+  margin: 0 auto 16px;
 }
 
-.car-image-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ─── Breadcrumb ──────────────────────────────────────── */
+.detail-breadcrumb {
+  background: linear-gradient(135deg, #0f172a, #1e1b4b);
+  padding: 16px 0;
 }
 
-.car-image-hover:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+.bc-nav {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .82rem; color: #94a3b8;
 }
 
-.ribbon {
-  position: absolute;
-  top: 15px;
-  left: -5px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.9rem;
-  font-weight: bold;
-  transform: rotate(-45deg);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+.bc-nav a { color: #94a3b8; text-decoration: none; transition: color .2s; }
+.bc-nav a:hover { color: #60a5fa; }
+.bc-nav span { color: #fff; font-weight: 500; }
+.bc-nav i { font-size: .7rem; }
+
+/* ─── Detail body ─────────────────────────────────────── */
+.detail-page { background: #f8fafc; min-height: 80vh; }
+.detail-body { padding: 40px 0 80px; }
+
+/* ─── Gallery ─────────────────────────────────────────── */
+.gallery-main {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  height: 380px;
+  background: #e2e8f0;
+  box-shadow: 0 12px 48px rgba(0,0,0,.1);
 }
 
-.bi-star, .bi-star-fill {
-  font-size: 1.2rem;
+.gallery-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+
+.gallery-main:hover .gallery-img { transform: scale(1.03); }
+
+.detail-discount {
+  position: absolute; top: 16px; right: 16px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: .78rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(239,68,68,.35);
+}
+
+.detail-avail {
+  position: absolute; bottom: 16px; left: 16px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: .78rem;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+
+.detail-avail .bi-circle-fill { font-size: .45rem; }
+.detail-avail-yes { background: rgba(16,185,129,.15); color: #065f46; border: 1px solid rgba(16,185,129,.3); }
+.detail-avail-no  { background: rgba(239,68,68,.15); color: #991b1b; border: 1px solid rgba(239,68,68,.3); }
+
+/* ─── Specs row ───────────────────────────────────────── */
+.specs-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.spec-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.spec-item i { font-size: 1.1rem; color: #2563EB; display: block; margin-bottom: 6px; }
+.spec-label { display: block; font-size: .7rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; letter-spacing: .05em; }
+.spec-val { font-size: .88rem; font-weight: 700; color: #0F172A; }
+
+/* ─── Description ─────────────────────────────────────── */
+.detail-desc-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.detail-desc-card h5 { font-weight: 700; color: #0F172A; font-size: .95rem; margin-bottom: 10px; }
+.detail-desc-card p  { color: #64748b; font-size: .88rem; line-height: 1.7; margin: 0; }
+
+/* ─── Star display ────────────────────────────────────── */
+.star-display {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .85rem;
+}
+
+.star-label { color: #64748b; font-weight: 500; }
+.star-display i { font-size: .9rem; }
+.star-val { color: #64748b; font-size: .82rem; }
+
+/* ─── Right sticky panel ──────────────────────────────── */
+.detail-sticky { position: sticky; top: 80px; }
+
+.detail-header-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+.detail-car-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 14px;
+}
+
+.detail-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.detail-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2563EB;
+  line-height: 1;
+}
+
+.detail-price span {
+  font-size: .85rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+.detail-avail-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 50px;
+}
+
+.detail-avail-inline .bi-circle-fill { font-size: .4rem; }
+.avail-yes { background: #d1fae5; color: #065f46; }
+.avail-no  { background: #fee2e2; color: #991b1b; }
+
+.unavail-notice {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #92400e;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: .82rem;
+  margin: 0;
+}
+
+.btn-back-cars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: transparent;
+  color: #374151;
+  font-family: 'Poppins', sans-serif;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .25s ease;
+  margin-top: 12px;
+}
+
+.btn-back-cars:hover { border-color: #2563EB; color: #2563EB; background: #dbeafe; }
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .specs-row { grid-template-columns: repeat(2, 1fr); }
+  .gallery-main { height: 240px; }
+  .detail-sticky { position: static; }
 }

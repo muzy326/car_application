@@ -1,109 +1,144 @@
-<main class="flex-fill d-flex justify-content-center align-items-center">
-  <div class="card shadow-sm mb-3" style="max-width: 700px;">
-  
-<div class="container mt-5 d-flex justify-content-center">
-  <div class="card shadow-sm mb-3" style="max-width: 700px;">
-    <div class="row g-0">
+<!-- Registration Page -->
+<div class="reg-page">
 
-      <!-- Left Image -->
-      <div class="col-md-4 d-flex align-items-center justify-content-center bg-light">
-        <img src="/assets/Registration2.jpg" class="img-fluid rounded-start p-3" alt="Registration Image">
+  <!-- Left visual panel -->
+  <div class="reg-left d-none d-lg-flex">
+    <div class="reg-left-content">
+      <div class="brand-mark">
+        <i class="bi bi-car-front-fill"></i>
+        <span>DriveAI</span>
+      </div>
+      <h2 class="reg-left-title">Start Your<br><span>Premium Journey</span></h2>
+      <p class="reg-left-sub">Join thousands of satisfied drivers. Create your account and get access to our full premium fleet.</p>
+      <div class="reg-perks">
+        <div class="perk-item"><i class="bi bi-check-circle-fill"></i>Instant booking confirmation</div>
+        <div class="perk-item"><i class="bi bi-check-circle-fill"></i>No hidden fees, ever</div>
+        <div class="perk-item"><i class="bi bi-check-circle-fill"></i>Premium fleet access</div>
+        <div class="perk-item"><i class="bi bi-check-circle-fill"></i>24/7 customer support</div>
+      </div>
+      <img src="/assets/Registration2.jpg" alt="Luxury car"
+           onerror="this.src='https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500&q=80'"
+           class="reg-hero-img">
+    </div>
+    <div class="left-blob"></div>
+  </div>
+
+  <!-- Right: Form -->
+  <div class="reg-right">
+    <div class="reg-form-wrap animate-fade-up">
+
+      <div class="reg-header">
+        <h3>Create Account</h3>
+        <p>Fill in your details to get started</p>
       </div>
 
-      <!-- Form -->
-      <div class="col-md-8">
-        <div class="card-body">
-          <h5 class="card-title text-center mb-4">Create Account</h5>
-          <p class="card-text text-center text-muted mb-4">
-            Join our platform and book your dream car today!
-          </p>
+      <form #regForm="ngForm" (ngSubmit)="register(regForm)">
 
-          <form #regForm="ngForm" (ngSubmit)="register(regForm)">
-
-            <!-- First Name -->
-            <div class="mb-3">
-              <input type="text" class="form-control" name="firstname" placeholder="First Name"
+        <!-- Name row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="field-label">First Name</label>
+            <div class="field-wrap">
+              <i class="bi bi-person field-icon"></i>
+              <input type="text" class="field-input" name="firstname" placeholder="John"
                      [(ngModel)]="userModel.firstname" required #fName="ngModel">
-              <div *ngIf="fName.invalid && fName.touched" class="text-danger small mt-1">
-                First name is required.
-              </div>
             </div>
-
-            <!-- Last Name -->
-            <div class="mb-3">
-              <input type="text" class="form-control" name="lastname" placeholder="Last Name"
+            <div *ngIf="fName.invalid && fName.touched" class="field-error">Required</div>
+          </div>
+          <div class="col-6">
+            <label class="field-label">Last Name</label>
+            <div class="field-wrap">
+              <i class="bi bi-person field-icon"></i>
+              <input type="text" class="field-input" name="lastname" placeholder="Doe"
                      [(ngModel)]="userModel.lastname" required #lName="ngModel">
-              <div *ngIf="lName.invalid && lName.touched" class="text-danger small mt-1">
-                Last name is required.
-              </div>
             </div>
-
-            <!-- Phone Number -->
-          <div class="mb-3">
-          <input type="text"class="form-control"name="phonenumber"placeholder="Phone Number"
-                [(ngModel)]="userModel.phonenumber"required #phone="ngModel">
-          <div *ngIf="phone.invalid && phone.touched" class="text-danger small mt-1">
-            Phone number is required.
+            <div *ngIf="lName.invalid && lName.touched" class="field-error">Required</div>
           </div>
         </div>
-            <!-- Email -->
-            <div class="mb-3">
-              <input type="email" class="form-control" name="email" placeholder="Email"
-                     [(ngModel)]="userModel.email" required email #email="ngModel">
-              <div *ngIf="email.invalid && email.touched" class="text-danger small mt-1">
-                <div *ngIf="email.errors?.['required']">Email is required.</div>
-                <div *ngIf="email.errors?.['email']">Enter a valid email.</div>
-              </div>
-            </div>
 
-            <!-- Password -->
-            <div class="mb-3">
-              <input type="password" class="form-control" name="password" placeholder="Password"
-                     [(ngModel)]="userModel.password" required minlength="6" #pass="ngModel">
-              <div *ngIf="pass.invalid && pass.touched" class="text-danger small mt-1">
-                <div *ngIf="pass.errors?.['required']">Password is required.</div>
-                <div *ngIf="pass.errors?.['minlength']">Minimum 6 characters required.</div>
-              </div>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="mb-3">
-              <input type="password" class="form-control" name="confirmPassword" placeholder="Confirm Password"
-                     [(ngModel)]="userModel.confirmPassword" required #cPass="ngModel">
-              <div *ngIf="(cPass.touched && cPass.invalid) || (userModel.password !== userModel.confirmPassword && cPass.touched)" 
-                   class="text-danger small mt-1">
-                Passwords do not match.
-              </div>
-            </div>
-
-            <!-- reCAPTCHA -->
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" name="recaptcha" [(ngModel)]="userModel.recaptcha" required #recap="ngModel">
-              <label class="form-check-label">I'm not a robot</label>
-              <div *ngIf="recap.invalid && recap.touched" class="text-danger small mt-1">
-                Please confirm you are not a robot.
-              </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary" [disabled]="regForm.invalid || loading">
-                {{ loading ? 'Registering...' : 'REGISTER' }}
-              </button>
-            </div>
-
-            <!-- Login Link -->
-            <p class="text-center mt-3 text-muted">
-              Already have an account? <a [routerLink]="['/login']">Login here</a>
-            </p>
-
-          </form>
+        <!-- Phone -->
+        <div class="field-group mb-3">
+          <label class="field-label">Phone Number</label>
+          <div class="field-wrap">
+            <i class="bi bi-telephone field-icon"></i>
+            <input type="text" class="field-input" name="phonenumber" placeholder="+1 234 567 8900"
+                   [(ngModel)]="userModel.phonenumber" required #phone="ngModel">
+          </div>
+          <div *ngIf="phone.invalid && phone.touched" class="field-error">Phone number is required</div>
         </div>
-      </div>
 
+        <!-- Email -->
+        <div class="field-group mb-3">
+          <label class="field-label">Email Address</label>
+          <div class="field-wrap">
+            <i class="bi bi-envelope field-icon"></i>
+            <input type="email" class="field-input" name="email" placeholder="you@example.com"
+                   [(ngModel)]="userModel.email" required email #email="ngModel">
+          </div>
+          <div *ngIf="email.invalid && email.touched" class="field-error">
+            <span *ngIf="email.errors?.['required']">Email is required</span>
+            <span *ngIf="email.errors?.['email']">Enter a valid email</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group mb-3">
+          <label class="field-label">Password</label>
+          <div class="field-wrap">
+            <i class="bi bi-lock field-icon"></i>
+            <input #pwInput type="password" class="field-input" name="password" placeholder="Min. 6 characters"
+                   [(ngModel)]="userModel.password" required minlength="6" #pass="ngModel">
+            <button type="button" class="field-toggle"
+              (click)="pwInput.type = pwInput.type === 'password' ? 'text' : 'password'"
+              tabindex="-1">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <div *ngIf="pass.invalid && pass.touched" class="field-error">
+            <span *ngIf="pass.errors?.['required']">Password is required</span>
+            <span *ngIf="pass.errors?.['minlength']">Min. 6 characters</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="field-group mb-3">
+          <label class="field-label">Confirm Password</label>
+          <div class="field-wrap">
+            <i class="bi bi-lock-fill field-icon"></i>
+            <input type="password" class="field-input" name="confirmPassword" placeholder="Repeat password"
+                   [(ngModel)]="userModel.confirmPassword" required #cPass="ngModel">
+          </div>
+          <div *ngIf="(cPass.touched && userModel.password !== userModel.confirmPassword)" class="field-error">
+            Passwords do not match
+          </div>
+        </div>
+
+        <!-- Robot check -->
+        <div class="robot-check mb-4">
+          <label class="robot-label">
+            <input type="checkbox" name="recaptcha" [(ngModel)]="userModel.recaptcha" required #recap="ngModel">
+            <div class="checkbox-custom"><i class="bi bi-check2"></i></div>
+            <span>I'm not a robot</span>
+          </label>
+          <div *ngIf="recap.invalid && recap.touched" class="field-error">Please confirm you are not a robot</div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-register" [disabled]="regForm.invalid || loading">
+          <span *ngIf="!loading"><i class="bi bi-person-plus me-2"></i>Create Account</span>
+          <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
+            <span class="spinner-border spinner-border-sm"></span>Creating account...
+          </span>
+        </button>
+
+        <!-- Login link -->
+        <div class="form-divider"><span>Already have an account?</span></div>
+        <a [routerLink]="['/login']" class="btn-login-link">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Sign In Instead
+        </a>
+
+      </form>
     </div>
   </div>
-</div>
 
- </div>
-</main>
+</div>
