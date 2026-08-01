@@ -1,8 +1,12 @@
 // controllers/chatController.js
-const pool = require('../db'); // Make sure this is your PostgreSQL connection pool
+const axios = require('axios');
+const pool = require('../db'); // PostgreSQL connection pool
 
-// ---------------- CORE CHAT LOGIC ----------------
-async function getChatResponse(message) {
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL; 
+// e.g. https://your-n8n-domain/webhook/chatbot
+
+// ---------------- FALLBACK CHAT LOGIC (rule-based, uses DB directly) ----------------
+async function getFallbackResponse(message) {
   const lowerMsg = message.toLowerCase().trim();
 
   // ----- Greetings -----
@@ -38,26 +42,59 @@ async function getChatResponse(message) {
   return "I'm not sure how to answer that. Try asking about cars or bookings!";
 }
 
+// ---------------- PRIMARY: CALL n8n -> GEMINI ----------------
+async function getAIResponse(message, sessionId) {
+  if (!N8N_WEBHOOK_URL) {
+    console.warn('⚠️ N8N_WEBHOOK_URL not set — falling back to rule-based logic');
+    return getFallbackResponse(message);
+  }
+
+  try {
+    const response = await axios.post(
+      N8N_WEBHOOK_URL,
+      { message, sessionId: sessionId || `session-${Date.now()}` },
+      { timeout: 15000 } // avoid hanging forever if n8n is slow/down
+    );
+
+    if (response.data && response.data.reply) {
+      return response.data.reply;
+    }
+
+    console.warn('⚠️ n8n responded without a reply field, using fallback');
+    return getFallbackResponse(message);
+  } catch (err) {
+    console.error('🔥 n8n/Gemini call failed:', err.message);
+    // graceful degrade instead of erroring out the whole chat
+    return getFallbackResponse(message);
+  }
+}
+
 // ---------------- ROUTE HANDLERS ----------------
 
 // POST /api/chat
 exports.chat = async (req, res) => {
-  const { message } = req.body;
+  const { message, sessionId } = req.body;
   if (!message) return res.status(400).json({ reply: 'Message required.' });
 
   try {
-    const reply = await getChatResponse(message);
-    res.json({ reply });
+    const reply = await getAIResponse(message, sessionId);
+    res.json({ reply, sessionId: sessionId || `session-${Date.now()}` });
   } catch (err) {
     console.error('Chat handler error:', err);
     res.status(500).json({ reply: 'Server error.' });
   }
 };
 
-// POST /api/chat/send (simple echo placeholder)
+// POST /api/chat/send
 exports.sendMessage = async (req, res) => {
-  const { message } = req.body;
+  const { message, sessionId } = req.body;
   if (!message) return res.status(400).json({ reply: 'Message required.' });
 
-  res.json({ reply: `You said: ${message}` });
+  try {
+    const reply = await getAIResponse(message, sessionId);
+    res.json({ reply, sessionId: sessionId || `session-${Date.now()}` });
+  } catch (err) {
+    console.error('SendMessage handler error:', err);
+    res.status(500).json({ reply: 'Server error.' });
+  }
 };

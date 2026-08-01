@@ -14,6 +14,8 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - mujeeba_net
 
   backend:
     build: ./server
@@ -27,10 +29,44 @@ services:
       DB_PASSWORD: "Mujeeba123@"
       DB_NAME: car_application
       DB_PORT: 5432
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      N8N_WEBHOOK_URL: "http://n8n:5678/webhook/chatbot"
+      N8N_BOOKING_WEBHOOK_URL: "http://n8n:5678/webhook/booking-notify"
     ports:
       - "3000:3000"
     depends_on:
       - db
+      - n8n
+    networks:
+      - mujeeba_net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: mujeeba_n8n
+    restart: always
+    environment:
+      N8N_HOST: "0.0.0.0"
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_PATH: "/n8n/"
+      WEBHOOK_URL: "http://localhost/n8n/"
+      GENERIC_TIMEZONE: "Asia/Riyadh"
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: "${N8N_USER}"
+      N8N_BASIC_AUTH_PASSWORD: "${N8N_PASSWORD}"
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: car_application
+      DB_POSTGRESDB_USER: postgres
+      DB_POSTGRESDB_PASSWORD: "Mujeeba123@"
+      DB_POSTGRESDB_SCHEMA: n8n
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - db
+    networks:
+      - mujeeba_net
 
   frontend:
     build: ./frontend
@@ -40,6 +76,15 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - mujeeba_net
 
 volumes:
   db_data:
+    external: true
+    name: car-application_db_data
+  n8n_data:
+
+networks:
+  mujeeba_net:
+    driver: bridge

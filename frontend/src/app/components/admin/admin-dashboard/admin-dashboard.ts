@@ -8,6 +8,7 @@ import { forkJoin } from 'rxjs';
 import { CarService } from '../../../services/car-service';
 import { UserService } from '../../../services/user-service';
 import { BookingService } from '../../../services/booking.service';
+import { DashboardService } from '../../../services/dashboard.service';
 
 // Models
 import { Car } from '../../../models/car.model';
@@ -47,11 +48,14 @@ export class AdminDashboardComponent implements OnInit {
   totalUsers = 0;
   totalBookings = 0;
   activeRentals = 0;
+  totalRevenue = 0;
 
   topCarsData: ChartData[] = [];
   bookingStatusData: ChartData[] = [];
   monthlyBookingData: ChartData[] = [];
   dailyBookingData: ChartData[] = [];
+  revenueChartData: ChartData[] = [];
+  customerGrowthData: ChartData[] = [];
 
   private colorMap: { [key: string]: string } = {
     SUV: '#4CAF50',
@@ -65,7 +69,8 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     private carService: CarService,
     private userService: UserService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -80,9 +85,12 @@ export class AdminDashboardComponent implements OnInit {
     forkJoin({
       cars: this.carService.getCars(),
       bookings: this.bookingService.getAllBookings(),
-      users: this.userService.getAllUsers()
+      users: this.userService.getAllUsers(),
+      revenueSummary: this.dashboardService.getSummary(),
+      revenueByMonth: this.dashboardService.getRevenueByMonth(),
+      customerGrowth: this.dashboardService.getCustomerGrowth()
     }).subscribe({
-      next: ({ cars, bookings, users }) => {
+      next: ({ cars, bookings, users, revenueSummary, revenueByMonth, customerGrowth }) => {
 
         const mappedBookings: Booking[] = bookings.map((b: any) => ({
           id: b.id,
@@ -98,12 +106,24 @@ export class AdminDashboardComponent implements OnInit {
         this.totalUsers = users?.length || 0;
         this.totalBookings = mappedBookings.length;
         this.activeRentals = mappedBookings.filter(b => b.status === 'Confirmed').length;
+        this.totalRevenue = (revenueSummary as any)?.totalRevenue || 0;
 
         // CHARTS
         this.calculateCarTypesFromCars(cars || []);
         this.calculateBookingStatus(mappedBookings);
         this.calculateMonthlyBookings(mappedBookings);
         this.calculateDailyBookings(mappedBookings);
+
+        // Backend-driven charts (same {name, value} shape as everything else)
+        this.revenueChartData = (revenueByMonth || []).map((r: any) => ({
+          name: r.month,
+          value: r.revenue
+        }));
+
+        this.customerGrowthData = (customerGrowth || []).map((c: any) => ({
+          name: c.month,
+          value: c.newCustomers
+        }));
 
         this.loader = false;
       },

@@ -71,6 +71,16 @@
           <div class="kpi-trend"><i class="bi bi-lightning-charge-fill"></i></div>
         </div>
       </div>
+      <div class="col-6 col-xl-3 animate-fade-up delay-4">
+        <div class="kpi-card kpi-teal">
+          <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
+          <div class="kpi-content">
+            <div class="kpi-num">{{ totalRevenue | number:'1.2-2' }}</div>
+            <div class="kpi-label">Total Revenue (SAR)</div>
+          </div>
+          <div class="kpi-trend"><i class="bi bi-graph-up-arrow"></i></div>
+        </div>
+      </div>
     </div>
 
     <!-- Charts Row 1 -->
@@ -122,7 +132,7 @@
     </div>
 
     <!-- Charts Row 2 -->
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
       <div class="col-lg-6 animate-fade-up delay-1">
         <div class="chart-card">
           <div class="chart-card-header">
@@ -164,6 +174,56 @@
               [noDataText]="'No daily data available!'">
             </bar-chart>
             <div *ngIf="!dailyBookingData.length" class="chart-empty">
+              <i class="bi bi-bar-chart"></i><p>No data yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 3 (Phase 7 additions) -->
+    <div class="row g-4">
+      <div class="col-lg-6 animate-fade-up delay-1">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-teal"></div>
+              <h5>Revenue by Month</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <bar-chart
+              *ngIf="revenueChartData.length"
+              [data]="revenueChartData"
+              [categoryField]="'name'"
+              [valueField]="'value'"
+              [title]="'Revenue by Month (SAR)'"
+              [noDataText]="'No revenue data available!'">
+            </bar-chart>
+            <div *ngIf="!revenueChartData.length" class="chart-empty">
+              <i class="bi bi-bar-chart"></i><p>No data yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 animate-fade-up delay-2">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-wrap">
+              <div class="chart-dot chart-dot-pink"></div>
+              <h5>Customer Growth</h5>
+            </div>
+          </div>
+          <div class="chart-body">
+            <bar-chart
+              *ngIf="customerGrowthData.length"
+              [data]="customerGrowthData"
+              [categoryField]="'name'"
+              [valueField]="'value'"
+              [title]="'New Customers by Month'"
+              [noDataText]="'No customer growth data available!'">
+            </bar-chart>
+            <div *ngIf="!customerGrowthData.length" class="chart-empty">
               <i class="bi bi-bar-chart"></i><p>No data yet</p>
             </div>
           </div>

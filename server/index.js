@@ -18,16 +18,14 @@ console.log("ENV CHECK:", {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   db: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: process.env.DB_PORT,
+  n8nWebhook: process.env.N8N_WEBHOOK_URL || '⚠️ NOT SET'
 });
 
 // ------------------ IMPORTS ------------------
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
-
-
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,9 +36,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
-
-
-
 
 app.use(express.json());
 
@@ -55,13 +50,16 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/cars', require('./routes/carRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 
-
-// Chat routes
+// Chat routes (Phase 1 - AI Chatbot -> n8n -> Gemini)
 const chatController = require('./controllers/chatController');
 app.post('/api/chat', chatController.chat);
 app.post('/api/chat/send', chatController.sendMessage);
+
+const aiRoutes = require("./routes/aiRoutes");
+app.use("/api/ai", aiRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {
@@ -74,19 +72,20 @@ app.get('/health', (req, res) => {
 });
 
 async function connectDB() {
-    try {
-        await pool.query('SELECT 1');
-        console.log('✅ PostgreSQL connected');
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
-    }
+  try {
+    await pool.query('SELECT 1');
+    console.log('✅ PostgreSQL connected');
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
-
 
 connectDB().then(() => {
   app.listen(PORT || 3000, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
 });
+
 // ✅ IMPORTANT: export for testing
+module.exports = app;

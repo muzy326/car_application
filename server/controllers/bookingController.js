@@ -1,5 +1,100 @@
 const pool = require('../db');
+const axios = require('axios');
 const isValidId = (id) => /^\d+$/.test(id);
+
+const N8N_BOOKING_WEBHOOK_URL = process.env.N8N_BOOKING_WEBHOOK_URL;
+
+// --------------------------
+// SHARED: NOTIFY N8N (EMAIL + WHATSAPP) — FIRE AND FORGET
+// --------------------------
+async function notifyBookingCreated(booking, car, user) {
+  if (!N8N_BOOKING_WEBHOOK_URL) {
+    console.warn('⚠️ N8N_BOOKING_WEBHOOK_URL not set — skipping notifications');
+    return;
+  }
+  try {
+    await axios.post(N8N_BOOKING_WEBHOOK_URL, {
+      bookingId: booking.id,
+      carName: car.carname,
+      pricePerDay: car.price,
+      startDate: booking.start_date,
+      endDate: booking.end_date,
+      status: booking.status,
+      customerName: user.firstname ? `${user.firstname} ${user.lastname}` : (user.name || 'Customer'),
+      customerEmail: user.email,
+      customerPhone: user.phonenumber
+    }, { timeout: 8000 });
+  } catch (err) {
+    // Never let a notification failure break the booking itself
+    console.error('🔥 Booking notification failed:', err.message);
+  }
+}
+
+// --------------------------
+// SHARED: CHECK AVAILABILITY
+// --------------------------
+async function isCarAvailable(carId, startDate, endDate, excludeBookingId = null) {
+  const query = `
+    SELECT id FROM bookings
+    WHERE car_id = $1
+      AND status != 'Cancelled'
+      AND start_date < $3
+      AND end_date > $2
+      ${excludeBookingId ? 'AND id != $4' : ''}
+  `;
+  const params = excludeBookingId
+    ? [carId, startDate, endDate, excludeBookingId]
+    : [carId, startDate, endDate];
+
+  const result = await pool.query(query, params);
+  return result.rows.length === 0;
+}
+
+// --------------------------
+// SHARED: CORE BOOKING LOGIC (used by manual + AI booking)
+// --------------------------
+async function bookCarCore({ userId, carId, startDate, endDate, status }) {
+  const carCheck = await pool.query('SELECT id, carname, price FROM cars WHERE id = $1', [carId]);
+  if (carCheck.rows.length === 0) {
+    const err = new Error('Invalid car ID');
+    err.statusCode = 400;
+    throw err;
+  }
+  const car = carCheck.rows[0];
+
+  const available = await isCarAvailable(carId, startDate, endDate);
+  if (!available) {
+    const err = new Error(`${car.carname} is already booked for those dates`);
+    err.statusCode = 409;
+    throw err;
+  }
+
+  const result = await pool.query(
+    `INSERT INTO bookings (user_id, car_id, start_date, end_date, status)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [
+      userId,
+      carId,
+      startDate,
+      endDate,
+      status?.toLowerCase() === 'confirmed' ? 'Confirmed' : 'Pending'
+    ]
+  );
+  const booking = result.rows[0];
+
+  // Fetch user for notification (non-blocking — fire and forget, never awaited by caller)
+  pool.query('SELECT firstname, lastname, email, phonenumber FROM users WHERE id = $1', [userId])
+    .then(userResult => {
+      if (userResult.rows.length > 0) {
+        notifyBookingCreated(booking, car, userResult.rows[0]);
+      }
+    })
+    .catch(err => console.error('🔥 Failed to fetch user for notification:', err.message));
+
+  return { booking, car };
+}
+
 // --------------------------
 // GET ALL BOOKINGS (ADMIN)
 // --------------------------
@@ -87,7 +182,6 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
-
 // --------------------------
 // GET BOOKINGS BY USER
 // --------------------------
@@ -110,7 +204,7 @@ exports.getBookingsByUser = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user bookings' });
   }
 };
-// 
+
 // --------------------------
 // CREATE BOOKING (SAFE FIXED)
 // --------------------------
@@ -129,8 +223,6 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const carId = Number(car_id);
-
     // --------------------------
     // CHECK USER (admin only)
     // --------------------------
@@ -146,51 +238,32 @@ exports.createBooking = async (req, res) => {
     }
 
     // --------------------------
-    // CHECK CAR
+    // CHECK CAR + AVAILABILITY + INSERT + NOTIFY (shared logic)
     // --------------------------
-    const carCheck = await pool.query(
-      'SELECT id, price FROM cars WHERE id = $1',
-      [carId]
-    );
-
-    if (carCheck.rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid car ID' });
-    }
-
-    const carPrice = carCheck.rows[0].price;
-
-    // --------------------------
-    // INSERT BOOKING
-    // --------------------------
-    const result = await pool.query(
-      `INSERT INTO bookings (user_id, car_id, start_date, end_date, status)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [
-        bookingUserId,
-        carId,
-        start_date,
-        end_date,
-        status?.toLowerCase() === 'confirmed' ? 'Confirmed' : 'Pending'
-      ]
-    );
+    const { booking, car } = await bookCarCore({
+      userId: bookingUserId,
+      carId: Number(car_id),
+      startDate: start_date,
+      endDate: end_date,
+      status
+    });
 
     // --------------------------
     // RESPONSE
     // --------------------------
     return res.status(201).json({
-      ...result.rows[0],
-      pricePerDay: carPrice
+      ...booking,
+      pricePerDay: car.price
     });
 
   } catch (err) {
     console.error('BOOKING ERROR:', err);
-    return res.status(500).json({
-      message: 'Error creating booking',
-      error: err.message
+    return res.status(err.statusCode || 500).json({
+      message: err.message || 'Error creating booking'
     });
   }
 };
+
 // --------------------------
 // UPDATE BOOKING STATUS (SAFE)
 // --------------------------
@@ -227,6 +300,8 @@ exports.updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: 'Error updating booking' });
   }
 };
+
+// --------------------------
 // DELETE BOOKING (SAFE)
 // --------------------------
 exports.deleteBooking = async (req, res) => {
@@ -257,6 +332,7 @@ exports.deleteBooking = async (req, res) => {
     res.status(500).json({ message: 'Error deleting booking' });
   }
 };
+
 // --------------------------
 // CURRENT BOOKINGS (ALL FUTURE BOOKINGS)
 // --------------------------
@@ -294,6 +370,7 @@ exports.getCurrentBookings = async (req, res) => {
     res.status(500).json({ message: 'Error fetching current bookings' });
   }
 };
+
 // --------------------------
 // BOOKING HISTORY (ALL PAST BOOKINGS)
 // --------------------------
@@ -330,6 +407,7 @@ exports.getBookingHistory = async (req, res) => {
     res.status(500).json({ message: 'Error fetching booking history' });
   }
 };
+
 // --------------------------
 // GET BOOKING BILL (SAFE)
 // --------------------------
@@ -391,3 +469,9 @@ exports.getBookingBill = async (req, res) => {
     res.status(500).json({ message: 'Error generating bill' });
   }
 };
+
+// --------------------------
+// EXPORT SHARED HELPERS (for aiController to reuse)
+// --------------------------
+exports.isCarAvailable = isCarAvailable;
+exports.bookCarCore = bookCarCore;

@@ -2,23 +2,30 @@
 <button 
   class="chat-btn btn btn-primary rounded-circle shadow"
   (click)="toggleChat()">
-  <i class="fs-4" [ngClass]="minimized ? 'bi bi-chat-dots-fill' : 'bi bi-x-lg'"></i>
+  <img 
+    *ngIf="minimized" 
+    src="assets/images/ai-assistant-avatar.png" 
+    alt="AI Assistant" 
+    class="chat-toggle-avatar" />
+  <i *ngIf="!minimized" class="fs-4 bi bi-x-lg"></i>
   <span *ngIf="unreadCount > 0" class="badge bg-danger chat-badge">{{ unreadCount }}</span>
 </button>
 
 <!-- Chat Window -->
 <div *ngIf="!minimized" class="card shadow fixed-bottom me-3 mb-5" style="width: 350px; height: 500px; z-index: 1000; right: 0;">
-  <div class="card-header bg-primary text-white text-center">
-    AI Assistant
+  <div class="card-header bg-primary text-white d-flex align-items-center justify-content-center gap-2">
+    <img src="assets/images/ai-assistant-avatar.png" alt="AI Assistant" class="header-avatar" />
+    <span>AI Assistant</span>
   </div>
 
   <div #chatBody class="card-body overflow-auto" style="height: 350px;">
     <div *ngFor="let msg of messages">
-      <div *ngIf="msg.from === 'user'" class="text-end mb-2">
-        <span class="badge bg-primary p-2">{{ msg.text }}</span>
+      <div *ngIf="msg.from === 'user'" class="d-flex justify-content-end mb-2">
+        <div class="chat-bubble chat-bubble-user">{{ msg.text }}</div>
       </div>
-      <div *ngIf="msg.from === 'bot'" class="text-start mb-2">
-        <span class="badge bg-secondary p-2">{{ msg.text }}</span>
+      <div *ngIf="msg.from === 'bot'" class="d-flex justify-content-start align-items-end gap-2 mb-2">
+        <img src="assets/images/ai-assistant-avatar.png" alt="Bot" class="bot-avatar" />
+        <div class="chat-bubble chat-bubble-bot">{{ msg.text }}</div>
       </div>
     </div>
   </div>

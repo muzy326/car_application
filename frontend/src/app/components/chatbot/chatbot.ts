@@ -1,8 +1,8 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { ChatService } from '../../services/chat.service';
+ // 🔧 adjust path to where you place chat.service.ts
 
 @Component({
   selector: 'app-chatbot',
@@ -18,9 +18,12 @@ export class ChatbotComponent {
   unreadCount = 0;
   loading = false;
 
+  // Keep one sessionId per chat session (persists across messages in this window)
+  sessionId = `session-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
   @ViewChild('chatBody') chatBody!: ElementRef;
 
-  constructor(private http: HttpClient) {}
+  constructor(private chatService: ChatService) {}
 
   toggleChat() {
     this.minimized = !this.minimized;
@@ -37,9 +40,9 @@ export class ChatbotComponent {
     this.userInput = '';
     this.scrollToBottom();
 
-    // API call
+    // API call via ChatService
     this.loading = true;
-    this.http.post<any>(`${environment.apiUrl}/chat`, { message: msg }).subscribe({
+    this.chatService.sendMessage(msg, this.sessionId).subscribe({
       next: res => {
         this.loading = false;
         const reply = res.reply || 'Sorry, no reply.';
@@ -65,12 +68,4 @@ export class ChatbotComponent {
       this.chatBody.nativeElement.scrollTop = this.chatBody.nativeElement.scrollHeight;
     } catch {}
   }
-} 
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-chatbot',
-//   standalone: true,
-//   template: `<h3>Chatbot Loaded</h3>`
-// })
-// export class ChatbotComponent {}
+}
