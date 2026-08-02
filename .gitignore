@@ -22,6 +22,16 @@ yarn-error.log
 # SSH Keys
 *.pem
 
+# Let's Encrypt / SSL certificates
+certbot/
+
+# n8n data (contains stored OAuth credentials, execution history)
+n8n_data/
+
+# Database backups/dumps
+*.sql.bak
+*.dump
+
 # IDEs
 .vscode/
 .idea/
@@ -34,3 +44,7 @@ Thumbs.db
 coverage/
 .history/
 .sass-cache/
+
+# Replit-specific (not needed in public repo)
+.replit
+replit.md

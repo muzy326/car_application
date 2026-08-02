@@ -82,7 +82,6 @@ services:
 volumes:
   db_data:
     external: true
-    name: car-application_db_data
   n8n_data:
 
 networks:
