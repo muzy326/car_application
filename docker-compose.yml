@@ -1,7 +1,5 @@
 version: "3.9"
-
 services:
-
   db:
     image: postgres:17
     container_name: mujeeba_db
@@ -16,7 +14,6 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - mujeeba_net
-
   backend:
     build: ./server
     container_name: mujeeba_backend
@@ -39,7 +36,6 @@ services:
       - n8n
     networks:
       - mujeeba_net
-
   n8n:
     image: n8nio/n8n:latest
     container_name: mujeeba_n8n
@@ -49,7 +45,9 @@ services:
       N8N_PORT: 5678
       N8N_PROTOCOL: http
       N8N_PATH: "/n8n/"
-      WEBHOOK_URL: "http://localhost/n8n/"
+      WEBHOOK_URL: "http://mujeeba-drive-ai.duckdns.org/n8n/"
+      N8N_SECURE_COOKIE: "false"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
       GENERIC_TIMEZONE: "Asia/Riyadh"
       N8N_BASIC_AUTH_ACTIVE: "true"
       N8N_BASIC_AUTH_USER: "${N8N_USER}"
@@ -67,23 +65,23 @@ services:
       - db
     networks:
       - mujeeba_net
-
   frontend:
     build: ./frontend
     container_name: mujeeba_frontend
     restart: always
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
     depends_on:
       - backend
     networks:
       - mujeeba_net
-
 volumes:
   db_data:
-    external: true
   n8n_data:
-
 networks:
   mujeeba_net:
     driver: bridge
