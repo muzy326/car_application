@@ -5,7 +5,9 @@ import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { authInterceptor } from './services/auth-interceptor';
+import { authInterceptor } from '../core/interceptors/auth.interceptor';
+
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,5 +16,6 @@ export const appConfig: ApplicationConfig = {
     provideToastr(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     importProvidersFrom(NgxPaginationModule),
+    
   ]
 };

@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Payment } from '../models/payment.model';
 import { environment } from '../../environments/environment';
+import { Payment } from '../../core/models/payment.model';
+import { handleApiError } from '../../core/utils/error.util';
+
 
 @Injectable({
   providedIn: 'root'
@@ -13,28 +15,28 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  // Get all payments (Admin)
   getPayments(): Observable<Payment[]> {
-    return this.http.get<Payment[]>(this.apiUrl);
+    return this.http.get<Payment[]>(this.apiUrl)
+      .pipe(handleApiError('Get payments'));
   }
 
-  // Get payments by booking ID
   getPaymentsByBooking(bookingId: number): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/booking/${bookingId}`);
+    return this.http.get<Payment[]>(`${this.apiUrl}/booking/${bookingId}`)
+      .pipe(handleApiError('Get payments by booking'));
   }
 
-  // Create payment
   createPayment(payment: Payment): Observable<Payment> {
-    return this.http.post<Payment>(this.apiUrl, payment);
+    return this.http.post<Payment>(this.apiUrl, payment)
+      .pipe(handleApiError('Create payment'));
   }
 
-  // Update payment
   updatePayment(id: number, payment: Payment): Observable<Payment> {
-    return this.http.put<Payment>(`${this.apiUrl}/${id}`, payment);
+    return this.http.put<Payment>(`${this.apiUrl}/${id}`, payment)
+      .pipe(handleApiError('Update payment'));
   }
 
-  // Delete payment (Admin)
   deletePayment(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`)
+      .pipe(handleApiError('Delete payment'));
   }
 }

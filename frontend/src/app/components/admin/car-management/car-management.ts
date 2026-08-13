@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CarService } from '../../../services/car-service';
-import { Car } from '../../../models/car.model';
+import { Car } from '../../../../core/models/car.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 

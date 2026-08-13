@@ -1,48 +1,28 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { Car } from '../models/car.model';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
 import { environment } from '../../environments/environment';
+import { Car } from '../../core/models/car.model';
+import { handleApiError } from '../../core/utils/error.util';
 
 @Injectable({ providedIn: 'root' })
 export class CarService {
 
   private baseUrl = `${environment.apiUrl}/cars`;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  private getAuthHeaders(): HttpHeaders {
-    const token = isPlatformBrowser(this.platformId)
-      ? localStorage.getItem('token') || ''
-      : '';
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
-  }
+  constructor(private http: HttpClient) {}
 
   /** Get all cars */
   getCars(): Observable<Car[]> {
-    return this.http.get<Car[]>(this.baseUrl, { headers: this.getAuthHeaders() })
-      .pipe(
-        catchError(err => {
-          console.error('Get cars failed', err);
-          return throwError(() => err);
-        })
-      );
+    return this.http.get<Car[]>(this.baseUrl)
+      .pipe(handleApiError('Get cars'));
   }
 
   /** Get single car */
   getCarById(id: number): Observable<Car> {
-    return this.http.get<Car>(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() })
-      .pipe(
-        catchError(err => {
-          console.error('Get car failed', err);
-          return throwError(() => err);
-        })
-      );
+    return this.http.get<Car>(`${this.baseUrl}/${id}`)
+      .pipe(handleApiError('Get car'));
   }
 
   /** Add new car */
@@ -54,13 +34,8 @@ export class CarService {
       discount: car.discount !== undefined ? Number(car.discount) : 0
     };
 
-    return this.http.post<Car>(this.baseUrl, payload, { headers: this.getAuthHeaders() })
-      .pipe(
-        catchError(err => {
-          console.error('Add car failed:', err);
-          return throwError(() => err);
-        })
-      );
+    return this.http.post<Car>(this.baseUrl, payload)
+      .pipe(handleApiError('Add car'));
   }
 
   /** Update existing car */
@@ -72,23 +47,13 @@ export class CarService {
       discount: car.discount !== undefined ? Number(car.discount) : 0
     };
 
-    return this.http.put<Car>(`${this.baseUrl}/${id}`, payload, { headers: this.getAuthHeaders() })
-      .pipe(
-        catchError(err => {
-          console.error('Update car failed:', err);
-          return throwError(() => err);
-        })
-      );
+    return this.http.put<Car>(`${this.baseUrl}/${id}`, payload)
+      .pipe(handleApiError('Update car'));
   }
 
   /** Delete a car */
   deleteCar(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() })
-      .pipe(
-        catchError(err => {
-          console.error('Delete car failed', err);
-          return throwError(() => err);
-        })
-      );
+    return this.http.delete(`${this.baseUrl}/${id}`)
+      .pipe(handleApiError('Delete car'));
   }
 }

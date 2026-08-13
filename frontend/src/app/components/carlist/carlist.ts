@@ -3,7 +3,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CarService } from '../../services/car-service';
-import { Car } from '../../models/car.model';
+import { Car } from '../../../core/models/car.model';
 
 @Component({
   selector: 'app-carlist',

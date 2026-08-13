@@ -4,7 +4,8 @@ import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth-service';
 import { BookingService } from '../../services/booking.service';
-import { Booking } from '../../models/booking.model';
+import { Booking } from '../../../core/models/booking.model';
+import { STORAGE_KEYS } from '../../../core/constants/storage-keys.const';
 
 @Component({
   selector: 'app-navbar',
@@ -38,40 +39,21 @@ export class NavBarComponent implements OnInit {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
-      const id = localStorage.getItem('latestBookingId');
+      const id = localStorage.getItem(STORAGE_KEYS.LATEST_BOOKING_ID);
       this.latestBookingId = id ? Number(id) : null;
 
-      this.displayName = localStorage.getItem('name') || '';
-
-     const role = localStorage.getItem('role');
-
-if (role) {
-  this.isAdmin = role.trim().toLowerCase() === 'admin';
-} else {
-  this.isAdmin = false;
-}
-
-      const userIdStr = localStorage.getItem('userId');
-      this.userId = userIdStr ? Number(userIdStr) : null;
+      this.loadAuthState();
 
       // fetch latest booking safely
       if (!this.isAdmin && this.userId) {
-      this.bookingService.getCurrentBooking().subscribe({
-      next: (bookings: Booking[]) => {
-    if (bookings && bookings.length > 0 && bookings[0].id) {
-      this.latestBookingId = bookings[0].id;
-    }
-
-    
-console.log("🔥 NAVBAR LOAD");
-console.log("NAME:", localStorage.getItem('name'));
-console.log("ROLE:", localStorage.getItem('role'));
-console.log("USERID:", localStorage.getItem('userId'));
-
-
-  },
-  error: err => console.error('Failed to fetch latest booking', err)
-});
+        this.bookingService.getCurrentBooking().subscribe({
+          next: (bookings: Booking[]) => {
+            if (bookings && bookings.length > 0 && bookings[0].id) {
+              this.latestBookingId = bookings[0].id;
+            }
+          },
+          error: err => console.error('Failed to fetch latest booking', err)
+        });
       }
     }
 
@@ -81,37 +63,36 @@ console.log("USERID:", localStorage.getItem('userId'));
       .subscribe(() => {
         this.closeMenus();
         if (this.isBrowser) {
-          this.displayName = localStorage.getItem('name') || null;
-          const role = localStorage.getItem('role');
-          this.isAdmin = role ? role.trim().toLowerCase() === 'admin' : false;
-          const userIdStr = localStorage.getItem('userId');
-          this.userId = userIdStr ? Number(userIdStr) : null;
+          this.loadAuthState();
         }
       });
+  }
+
+  private loadAuthState(): void {
+    this.displayName = this.authService.displayName;
+    this.isAdmin = this.authService.isAdmin;
+    this.userId = this.authService.userId ? Number(this.authService.userId) : null;
   }
 
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
   }
+
   goToLatestBill() {
-
-  this.bookingService.getCurrentBooking().subscribe({
-    next: (bookings: Booking[]) => {
-
-      if (bookings.length > 0) {
-        const id = bookings[0].id;
-        this.router.navigate(['/booking-bill', id]);
-      } else {
-        alert("No bookings found");
+    this.bookingService.getCurrentBooking().subscribe({
+      next: (bookings: Booking[]) => {
+        if (bookings.length > 0) {
+          const id = bookings[0].id;
+          this.router.navigate(['/booking-bill', id]);
+        } else {
+          alert("No bookings found");
+        }
+      },
+      error: () => {
+        alert("Unable to load booking");
       }
-
-    },
-    error: () => {
-      alert("Unable to load booking");
-    }
-  });
-
-}
+    });
+  }
 
   toggleAdminDropdown() {
     this.adminDropdownOpen = !this.adminDropdownOpen;
@@ -126,19 +107,16 @@ console.log("USERID:", localStorage.getItem('userId'));
     this.adminDropdownOpen = false;
     this.userDropdownOpen = false;
   }
+
   logout() {
-  if (this.isBrowser) {
-    localStorage.clear(); // ✅ correct place
+    this.authService.logout();
+
+    this.displayName = null;
+    this.isAdmin = false;
+    this.userId = null;
+    this.latestBookingId = null;
+
+    this.closeMenus();
+    this.router.navigate(['/login']);
   }
-
-  this.displayName = null;
-  this.isAdmin = false;
-  this.latestBookingId = null;
-
-  this.closeMenus();
-  this.router.navigate(['/login']);
 }
-
-
-}
-

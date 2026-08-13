@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../services/user-service';
-import { User } from '../../../models/user.model';
+import { User } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-users-management',

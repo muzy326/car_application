@@ -11,8 +11,8 @@ import { BookingService } from '../../../services/booking.service';
 import { DashboardService } from '../../../services/dashboard.service';
 
 // Models
-import { Car } from '../../../models/car.model';
-import { Booking } from '../../../models/booking.model';
+import { Car } from '../../../../core/models/car.model';
+import { Booking } from '../../../../core/models/booking.model';
 import { DonutChartComponent } from '../../charts/donut-chart/donut-chart.component';
 import { PieChartComponent } from '../../charts/pie-chart/pie-chart.component';
 import { BarChartComponent } from '../../charts/bar-chart/bar-chart.component';

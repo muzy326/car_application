@@ -10,3 +10,9 @@ export interface Booking {
   createdAt?: string;
   
 }
+export interface CreateBookingRequest {
+  car_id: number;
+  start_date: Date | string;
+  end_date: Date | string;
+  status?: string;
+}

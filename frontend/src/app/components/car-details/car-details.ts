@@ -2,7 +2,8 @@ import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angu
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CarService } from '../../services/car-service';
-import { Car } from '../../models/car.model';
+import { AuthService } from '../../services/auth-service';
+import { Car } from '../../../core/models/car.model';
 import { BookingFormComponent } from '../booking-form/booking-form';
 import { firstValueFrom } from 'rxjs';
 
@@ -24,6 +25,7 @@ export class CarDetailsComponent implements OnInit {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private carService: CarService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -39,13 +41,10 @@ export class CarDetailsComponent implements OnInit {
 
     const id = Number(idParam);
 
-    if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        this.router.navigate(['/login']);
-        this.loading = false;
-        return;
-      }
+    if (isPlatformBrowser(this.platformId) && !this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      this.loading = false;
+      return;
     }
 
     await this.loadCar(id);

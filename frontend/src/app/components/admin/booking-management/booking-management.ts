@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
-import { Booking } from '../../../models/booking.model';
+import { Booking } from '../../../../core/models/booking.model';
 import { Router } from '@angular/router';
 
 @Component({

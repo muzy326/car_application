@@ -2,10 +2,10 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, Inject, Input, OnInit, PLATFORM_ID } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BookingService } from '../../services/booking.service';
-import { Car } from '../../models/car.model';
-import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { AuthService } from '../../services/auth-service';
+import { BookingCoreService } from '../../../core/services/booking-core.service';
+import { Car } from '../../../core/models/car.model';
+import { STORAGE_KEYS } from '../../../core/constants/storage-keys.const';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -26,72 +26,53 @@ export class BookingFormComponent implements OnInit {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private fb: FormBuilder,
-    private bookingService: BookingService,
+    private bookingCoreService: BookingCoreService,
+    private authService: AuthService,
     private router: Router,
     private toastr: ToastrService
   ) {
     this.bookingForm = this.fb.group({
-    startDate: ['', Validators.required],
-    endDate: ['', Validators.required]
-  });
-}
-
-  ngOnInit(): void {
-   
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required]
+    });
   }
 
-  submitBooking(): void {
+  ngOnInit(): void {}
 
+  submitBooking(): void {
     this.submitted = true;
 
     if (this.bookingForm.invalid || !this.car) return;
 
-    const { startDate, endDate } = this.bookingForm.value;
-
-    if (startDate >= endDate) {
-      this.toastr.warning('End Date must be after Start Date!');
-      return;
-    }
-
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
-
-    if (!token) {
+    if (!this.authService.isLoggedIn()) {
       this.toastr.warning('Please login first!');
       this.router.navigate(['/login']);
       return;
     }
 
-    const bookingPayload = {
-      car_id: this.car.id!,
-      start_date: startDate,
-      end_date: endDate,
-      status: 'Pending'
-    };
-
+    const { startDate, endDate } = this.bookingForm.value;
     this.loading = true;
 
-    this.bookingService.createBooking(bookingPayload).pipe(
-      catchError(err => {
-        console.error('Booking failed:', err);
-        this.toastr.error('Booking failed!');
+    this.bookingCoreService.bookCarCore({
+      carId: this.car.id!,
+      startDate,
+      endDate,
+      status: 'Pending'
+    }).subscribe({
+      next: (res: any) => {
         this.loading = false;
-        return of(null);
-      })
-    ).subscribe((res: any) => {
 
-      if (!res) return;
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem(STORAGE_KEYS.LATEST_BOOKING_ID, res.id);
+        }
 
-      this.loading = false;
-
-      // Save booking ID
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem('latestBookingId', res.id);
+        this.router.navigate(['/booking-success']);
+      },
+      error: (err) => {
+        console.error('Booking failed:', err);
+        this.toastr.error(err.message || 'Booking failed!');
+        this.loading = false;
       }
-       // ✅ Angular toast
-    //this.toastr.success('Booking completed successfully!');
-
-      // ✅ CLEAN NAVIGATION (NO setTimeout)
-      this.router.navigate(['/booking-success']);
     });
   }
 }

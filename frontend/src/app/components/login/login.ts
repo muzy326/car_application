@@ -29,47 +29,40 @@ export class LoginComponent {
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
-    // Auto redirect if token exists — guarded so it never runs server-side
-    if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('token');
-      if (token) {
-        setTimeout(() => this.router.navigate(['/home']), 0);
+    // Auto redirect if already logged in — guarded so it never runs server-side
+    if (isPlatformBrowser(this.platformId) && this.authService.isLoggedIn()) {
+      setTimeout(() => this.router.navigate(['/home']), 0);
+    }
+  }
+
+  login(form: NgForm) {
+    if (form.invalid) {
+      this.toastr.error('Please enter valid email and password');
+      return;
+    }
+
+    this.loginError = '';
+
+    setTimeout(() => {
+      this.loading = true;
+    });
+
+    this.authService.login(this.model.email, this.model.password).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.toastr.success(`Welcome ${res.user.name}`);
+
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+        this.router.navigateByUrl(returnUrl);
+      },
+
+      error: (err) => {
+        this.loading = false;
+
+        if (err.status === 401) this.loginError = 'Incorrect password';
+        else if (err.status === 404) this.loginError = 'User not found';
+        else this.loginError = 'Login failed. Please try again.';
       }
-    }
+    });
   }
- 
-login(form: NgForm) {
-  if (form.invalid) {
-    this.toastr.error('Please enter valid email and password');
-    return;
-  }
-
-  this.loginError = '';
-
-  // ✅ move loading change OUTSIDE immediate cycle
-  setTimeout(() => {
-    this.loading = true;
-  });
-
-  this.authService.login(this.model.email, this.model.password).subscribe({
-    next: (res) => {
-      console.log("🔥 LOGIN RESPONSE:", res);
-
-      this.loading = false;
-
-      this.toastr.success(`Welcome ${res.user.name}`);
-
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
-      this.router.navigateByUrl(returnUrl);
-    },
-
-    error: (err) => {
-      this.loading = false;
-
-      if (err.status === 401) this.loginError = 'Incorrect password';
-      else if (err.status === 404) this.loginError = 'User not found';
-      else this.loginError = 'Login failed. Please try again.';
-    }
-  });
-}
 }

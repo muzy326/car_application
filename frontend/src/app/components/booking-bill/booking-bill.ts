@@ -2,10 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
-import { UserService } from '../../services/user-service';
-import { CarService } from '../../services/car-service';
 import { firstValueFrom } from 'rxjs';
-import { User } from '../../models/user.model';
+import { BookingBill } from '../../../core/models/booking-bill.model';
 
 @Component({
   selector: 'app-booking-bill',
@@ -16,15 +14,13 @@ import { User } from '../../models/user.model';
 })
 export class BookingBillComponent implements OnInit {
 
-  booking: any = null;
+  booking: BookingBill | null = null;
   loading = true;
   error = '';
 
   constructor(
     private route: ActivatedRoute,
-    private bookingService: BookingService,
-    private userService: UserService,
-    private carService: CarService
+    private bookingService: BookingService
   ) {}
 
   ngOnInit(): void {
@@ -41,52 +37,45 @@ export class BookingBillComponent implements OnInit {
   }
 
   async loadBookingBill(bookingId: number) {
-  try {
-    const bookingData: any = await firstValueFrom(
-      this.bookingService.getBookingById(bookingId)
-    );
+    try {
+      const bookingData: any = await firstValueFrom(
+        this.bookingService.getBookingById(bookingId)
+      );
 
-    // ✅ No more extra API calls
+      const start = new Date(bookingData.start_date);
+      const end = new Date(bookingData.end_date);
 
-    const start = new Date(bookingData.start_date);
-    const end = new Date(bookingData.end_date);
+      const durationDays = Math.ceil(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-    const durationDays = Math.ceil(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-    );
+      const pricePerDay = bookingData.price || 0;
+      const totalPrice = durationDays * pricePerDay;
 
-    const pricePerDay = bookingData.price || 0;
-    const totalPrice = durationDays * pricePerDay;
+      this.booking = {
+        id: bookingData.id,
+        status: bookingData.status,
+        startDate: start,
+        endDate: end,
+        userName: `${bookingData.firstname} ${bookingData.lastname}`,
+        userEmail: bookingData.email,
+        userPhone: bookingData.phonenumber,
+        carName: bookingData.carname,
+        carType: bookingData.type,
+        durationDays,
+        pricePerDay,
+        totalPrice
+      };
 
-    this.booking = {
-      id: bookingData.id,
-      status: bookingData.status,
+      this.loading = false;
+      this.error = '';
 
-      startDate: start,
-      endDate: end,
-
-      // ✅ Direct from backend
-      userName: `${bookingData.firstname} ${bookingData.lastname}`,
-      userEmail: bookingData.email,
-      userPhone: bookingData.phonenumber,
-
-      carName: bookingData.carname,
-      carType: bookingData.type,
-
-      durationDays,
-      pricePerDay,
-      totalPrice
-    };
-
-    this.loading = false;
-    this.error = '';
-
-  } catch (err) {
-    console.error('🔥 ERROR:', err); // IMPORTANT
-    this.error = 'Failed to load booking details';
-    this.loading = false;
+    } catch (err) {
+      console.error('Failed to load booking bill:', err);
+      this.error = 'Failed to load booking details';
+      this.loading = false;
+    }
   }
-}
 
   printBill(): void {
     window.print();

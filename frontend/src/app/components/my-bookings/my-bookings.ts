@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BookingService } from '../../services/booking.service';
-import { Booking } from '../../models/booking.model';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { BookingService } from '../../services/booking.service';
+import { Booking } from '../../../core/models/booking.model';
+import { mapBooking } from '../../../core/mappers/booking.mapper';
+import { formatDate } from '../../../core/utils/date.util';
+import { getStatusBadge } from '../../../core/utils/status.util';
 
 @Component({
   selector: 'app-my-bookings',
@@ -16,13 +19,15 @@ export class MyBookingsComponent implements OnInit {
 
   currentBooking: Booking[] = [];
   history: Booking[] = [];
-
   loading = true;
 
-  // Summary
   totalBookings = 0;
   totalCurrent = 0;
   totalHistory = 0;
+
+  // expose shared utils to the template
+  formatDate = formatDate;
+  getStatusBadge = getStatusBadge;
 
   constructor(private bookingService: BookingService) {}
 
@@ -38,17 +43,13 @@ export class MyBookingsComponent implements OnInit {
       history: this.bookingService.getBookingHistory()
     }).subscribe({
       next: ({ current, history }) => {
+        this.currentBooking = current.map(mapBooking);
+        this.history = history.map(mapBooking);
 
-        // Map API data
-        this.currentBooking = current.map(b => this.mapBooking(b));
-        this.history = history.map(b => this.mapBooking(b));
-
-        // Totals
         this.totalCurrent = this.currentBooking.length;
         this.totalHistory = this.history.length;
-        this.updateTotals();
+        this.totalBookings = this.totalCurrent + this.totalHistory;
 
-        // Stop loading
         this.loading = false;
       },
       error: (err) => {
@@ -57,43 +58,4 @@ export class MyBookingsComponent implements OnInit {
       }
     });
   }
-
-  // Convert API response → Booking model
-  private mapBooking(b: any): Booking {
-    return {
-      id: b.id,
-      userId: b.user_id,
-      carId: b.car_id,
-      carname: b.carname || b.car_name || 'Unknown',
-      startDate: b.start_date || b.startDate || null,
-      endDate: b.end_date || b.endDate || null,
-      status: b.status || 'Pending',
-      totalPrice: b.totalPrice || b.total_price || 0,
-      createdAt: b.created_at || ''
-    };
-  }
-
-  private updateTotals(): void {
-    this.totalBookings = this.totalCurrent + this.totalHistory;
-  }
-
-  // Status badge helper
-  getStatusBadge(status?: string): string {
-    switch (status) {
-      case 'Confirmed':
-        return 'bg-success';
-      case 'Cancelled':
-        return 'bg-danger';
-      default:
-        return 'bg-warning text-dark';
-    }
-  }
-
-  // Safe date formatting
-  formatDate(date: string | Date | null | undefined): string {
-    if (!date) return '-';
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toLocaleDateString();
-  }
-
 }

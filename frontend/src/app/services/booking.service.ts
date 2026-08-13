@@ -1,64 +1,52 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Booking } from '../models/booking.model';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Booking } from '../../core/models/booking.model';
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingService {
-
-  // Backend URL from environment (works in Docker)
   private baseUrl = `${environment.apiUrl}/bookings`;
 
-  constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  private getAuthHeaders(): HttpHeaders {
-    const token = isPlatformBrowser(this.platformId)
-      ? localStorage.getItem('token') ?? ''
-      : '';
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-  }
+  constructor(private http: HttpClient) {}
 
   /** ---------------- CREATE ---------------- */
   createBooking(booking: Partial<Booking>): Observable<Booking> {
-    return this.http.post<Booking>(this.baseUrl, booking, { headers: this.getAuthHeaders() });
+    return this.http.post<Booking>(this.baseUrl, booking);
   }
-  
 
   /** ---------------- READ ---------------- */
   getBookingById(id: number): Observable<Booking> {
-    return this.http.get<Booking>(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.get<Booking>(`${this.baseUrl}/${id}`);
   }
 
   getMyBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings`, { headers: this.getAuthHeaders() });
+    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings`);
   }
 
   getCurrentBooking(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings/current`, { headers: this.getAuthHeaders() });
+    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings/current`);
   }
 
   getBookingHistory(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings/history`, { headers: this.getAuthHeaders() });
+    return this.http.get<Booking[]>(`${this.baseUrl}/my-bookings/history`);
   }
 
   getAllBookings(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(this.baseUrl, { headers: this.getAuthHeaders() });
+    return this.http.get<Booking[]>(this.baseUrl);
   }
 
   /** ---------------- UPDATE ---------------- */
   updateBooking(id: number, booking: Partial<Booking>): Observable<Booking> {
-    return this.http.put<Booking>(`${this.baseUrl}/${id}`, booking, { headers: this.getAuthHeaders() });
+    return this.http.put<Booking>(`${this.baseUrl}/${id}`, booking);
   }
 
   /** ---------------- DELETE ---------------- */
   deleteBooking(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 }
