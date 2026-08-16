@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
- // 🔧 adjust path to where you place chat.service.ts
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-chatbot',
@@ -21,14 +21,24 @@ export class ChatbotComponent {
   // Keep one sessionId per chat session (persists across messages in this window)
   sessionId = `session-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
+  private readonly bookingKeywords = ['book', 'reserve', 'confirm booking', 'rent it'];
+
   @ViewChild('chatBody') chatBody!: ElementRef;
 
-  constructor(private chatService: ChatService) {}
+  constructor(
+    private chatService: ChatService,
+    private authService: AuthService
+  ) {}
 
   toggleChat() {
     this.minimized = !this.minimized;
     if (!this.minimized) this.unreadCount = 0;
     setTimeout(() => this.scrollToBottom(), 0);
+  }
+
+  private looksLikeBooking(message: string): boolean {
+    const lower = message.toLowerCase();
+    return this.bookingKeywords.some(k => lower.includes(k));
   }
 
   sendMessage() {
@@ -40,9 +50,26 @@ export class ChatbotComponent {
     this.userInput = '';
     this.scrollToBottom();
 
-    // API call via ChatService
+    const wantsToBook = this.looksLikeBooking(msg);
+
+    // Booking requires login — nudge instead of silently falling back to chit-chat
+    if (wantsToBook && !this.authService.isLoggedIn()) {
+      this.messages.push({
+        text: 'Please log in first so I can book this for you.',
+        from: 'bot'
+      });
+      if (this.minimized) this.unreadCount++;
+      this.scrollToBottom();
+      return;
+    }
+
     this.loading = true;
-    this.chatService.sendMessage(msg, this.sessionId).subscribe({
+
+    const request$ = wantsToBook
+      ? this.chatService.sendBookingMessage(msg)
+      : this.chatService.sendMessage(msg, this.sessionId);
+
+    request$.subscribe({
       next: res => {
         this.loading = false;
         const reply = res.reply || 'Sorry, no reply.';

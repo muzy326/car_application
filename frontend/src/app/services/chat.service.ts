@@ -1,22 +1,21 @@
-// chat.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-
-export interface ChatResponse {
-  reply: string;
-  sessionId: string;
-}
+import { ChatResponse } from '../../core/models/chat.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private apiUrl = `${environment.apiUrl}/chat`;
+  private chatUrl = `${environment.apiUrl}/chat`;
+  private aiBookUrl = `${environment.apiUrl}/ai/book`;
 
   constructor(private http: HttpClient) {}
 
   sendMessage(message: string, sessionId: string): Observable<ChatResponse> {
-    return this.http.post<ChatResponse>(this.apiUrl, { message, sessionId });
+    return this.http.post<ChatResponse>(this.chatUrl, { message, sessionId });
+  }
+
+  sendBookingMessage(message: string): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(this.aiBookUrl, { message });
   }
 }
