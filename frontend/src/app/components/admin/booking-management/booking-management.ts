@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BookingService } from '../../../services/booking.service';
@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './booking-management.html',
-  styleUrls: ['./booking-management.css']
+  styleUrls: ['./booking-management.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookingManagementComponent implements OnInit {
   bookings: Booking[] = [];
@@ -36,7 +37,11 @@ export class BookingManagementComponent implements OnInit {
 
   editingBookingId: number | null = null;
 
-  constructor(private bookingService: BookingService,private router: Router) {}
+  constructor(
+    private bookingService: BookingService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadBookings();
@@ -57,10 +62,12 @@ export class BookingManagementComponent implements OnInit {
         }));
         this.applyFilter();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: err => {
         console.error(err);
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -77,6 +84,7 @@ export class BookingManagementComponent implements OnInit {
     this.totalPages = Math.ceil(this.filteredBookings.length / this.pageSize) || 1;
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
     this.currentPage = 1;
+    this.cdr.markForCheck();
   }
 
   /** PAGINATION */
@@ -88,6 +96,7 @@ export class BookingManagementComponent implements OnInit {
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
+    this.cdr.markForCheck();
   }
 
   /** CREATE / UPDATE BOOKING */
@@ -110,7 +119,10 @@ export class BookingManagementComponent implements OnInit {
           this.resetForm(form);
           this.loadBookings();
         },
-        error: err => console.error(err)
+        error: err => {
+          console.error(err);
+          this.cdr.markForCheck();
+        }
       });
     } else {
       this.bookingService.createBooking(payload).subscribe({
@@ -119,7 +131,10 @@ export class BookingManagementComponent implements OnInit {
           this.resetForm(form);
           this.loadBookings();
         },
-        error: err => console.error(err)
+        error: err => {
+          console.error(err);
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -128,6 +143,7 @@ export class BookingManagementComponent implements OnInit {
   editBooking(b: Booking): void {
     this.editingBookingId = b.id!;
     this.bookingModel = { ...b };
+    this.cdr.markForCheck();
   }
 
   /** DELETE BOOKING */
@@ -135,7 +151,10 @@ export class BookingManagementComponent implements OnInit {
     if (!confirm('Delete this booking?')) return;
     this.bookingService.deleteBooking(id).subscribe({
       next: () => this.loadBookings(),
-      error: err => console.error(err)
+      error: err => {
+        console.error(err);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -143,7 +162,10 @@ export class BookingManagementComponent implements OnInit {
   updateStatus(id: number, status: 'Confirmed' | 'Cancelled'): void {
     this.bookingService.updateBooking(id, { status }).subscribe({
       next: () => this.loadBookings(),
-      error: err => console.error(err)
+      error: err => {
+        console.error(err);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -158,6 +180,7 @@ export class BookingManagementComponent implements OnInit {
       endDate: '',
       status: 'Pending'
     };
+    this.cdr.markForCheck();
   }
 
   /** STATUS BADGE CLASS */

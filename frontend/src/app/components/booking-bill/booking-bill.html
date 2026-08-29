@@ -1,81 +1,85 @@
-<div class="container mt-5" *ngIf="!loading && booking; else loadingTpl">
-  <div class="card shadow-lg p-4 bill-card">
+@if (!loading && booking) {
+  <div class="container mt-5">
+    <div class="card shadow-lg p-4 bill-card">
 
-    <!-- Header -->
-    <div class="text-center mb-4">
-      <h2 class="text-success">Rent A Car</h2>
-      <h4>Booking Invoice</h4>
-      <hr class="border-success">
-    </div>
-
-    <!-- Booking Info -->
-    <div class="row mb-3">
-      <div class="col-md-6"><strong>Booking ID:</strong> {{ booking.id }}</div>
-      <div class="col-md-6 text-end">
-        <strong>Status:</strong>
-        <span class="badge"
-              [ngClass]="{
-                'bg-success': booking.status === 'Confirmed',
-                'bg-warning text-dark': booking.status === 'Pending',
-                'bg-danger': booking.status === 'Cancelled'
-              }">
-          {{ booking.status }}
-        </span>
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <h2 class="text-success">Rent A Car</h2>
+        <h4>Booking Invoice</h4>
+        <hr class="border-success">
       </div>
+
+      <!-- Booking Info -->
+      <div class="row mb-3">
+        <div class="col-md-6"><strong>Booking ID:</strong> {{ booking.id }}</div>
+        <div class="col-md-6 text-end">
+          <strong>Status:</strong>
+          <span class="badge"
+                [ngClass]="{
+                  'bg-success': booking.status === 'Confirmed',
+                  'bg-warning text-dark': booking.status === 'Pending',
+                  'bg-danger': booking.status === 'Cancelled'
+                }">
+            {{ booking.status }}
+          </span>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- User Contact Info -->
+      <div class="row mb-3">
+        <div class="col-md-4"><strong>User Name:</strong> {{ booking.userName }}</div>
+        <div class="col-md-4"><strong>Email:</strong> {{ booking.userEmail }}</div>
+        <div class="col-md-4"><strong>Phone:</strong> <span class="text-primary">{{ booking.userPhone }}</span></div>
+      </div>
+
+      <hr>
+
+      <!-- Car Details -->
+      <div class="row mb-3">
+        <div class="col-md-3"><strong>Car Name:</strong> {{ booking.carName }}</div>
+        <div class="col-md-3"><strong>Car Type:</strong> {{ booking.carType }}</div>
+        <div class="col-md-3"><strong>Price / Day:</strong> {{ booking.pricePerDay | currency }}</div>
+        <div class="col-md-3"><strong>Total Price:</strong> <span class="text-success fw-bold">{{ booking.totalPrice | currency }}</span></div>
+      </div>
+
+      <!-- Duration -->
+      <div class="row mb-3">
+        <div class="col-md-12"><strong>Duration:</strong> {{ booking.durationDays }} days</div>
+      </div>
+
+      <hr>
+
+      <!-- Booking Dates -->
+      <div class="row mb-3">
+        <div class="col-md-6"><strong>Start Date:</strong> {{ booking.startDate | date:'mediumDate' }}</div>
+        <div class="col-md-6 text-end"><strong>End Date:</strong> {{ booking.endDate | date:'mediumDate' }}</div>
+      </div>
+
+      <hr>
+
+      <!-- Footer -->
+      <div class="text-center mt-4">
+        <h5 class="text-success">Thank you for booking with us!</h5>
+        <p>Have a safe and comfortable ride.</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="text-center mt-4">
+        <a class="btn btn-primary me-2" [routerLink]="['/cars']">Book Another Car</a>
+        <button class="btn btn-secondary" (click)="printBill()">Print Bill</button>
+      </div>
+
     </div>
-
-    <hr>
-
-    <!-- User Contact Info -->
-    <div class="row mb-3">
-      <div class="col-md-4"><strong>User Name:</strong> {{ booking.userName }}</div>
-      <div class="col-md-4"><strong>Email:</strong> {{ booking.userEmail }}</div>
-      <div class="col-md-4"><strong>Phone:</strong> <span class="text-primary">{{ booking.userPhone }}</span></div>
-    </div>
-
-    <hr>
-
-    <!-- Car Details -->
-    <div class="row mb-3">
-      <div class="col-md-3"><strong>Car Name:</strong> {{ booking.carName }}</div>
-      <div class="col-md-3"><strong>Car Type:</strong> {{ booking.carType }}</div>
-      <div class="col-md-3"><strong>Price / Day:</strong> ${{ booking.pricePerDay }}</div>
-      <div class="col-md-3"><strong>Total Price:</strong> <span class="text-success fw-bold">${{ booking.totalPrice }}</span></div>
-    </div>
-
-    <!-- Duration -->
-    <div class="row mb-3">
-      <div class="col-md-12"><strong>Duration:</strong> {{ booking.durationDays }} days</div>
-    </div>
-
-    <hr>
-
-    <!-- Booking Dates -->
-    <div class="row mb-3">
-      <div class="col-md-6"><strong>Start Date:</strong> {{ booking.startDate | date:'mediumDate' }}</div>
-      <div class="col-md-6 text-end"><strong>End Date:</strong> {{ booking.endDate | date:'mediumDate' }}</div>
-    </div>
-
-    <hr>
-
-    <!-- Footer -->
-    <div class="text-center mt-4">
-      <h5 class="text-success">Thank you for booking with us!</h5>
-      <p>Have a safe and comfortable ride.</p>
-    </div>
-
-    <!-- Buttons -->
-    <div class="text-center mt-4">
-      <a class="btn btn-primary me-2" [routerLink]="['/cars']">Book Another Car</a>
-      <button class="btn btn-secondary" (click)="printBill()">Print Bill</button>
-    </div>
-
   </div>
-</div>
-
-<ng-template #loadingTpl>
+} @else {
   <div class="text-center mt-5">
-    <div *ngIf="loading" class="spinner-border text-success" role="status"></div>
-    <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+    @if (loading) {
+      <div class="spinner-border text-success" role="status"></div>
+    }
+    @if (error) {
+      <div class="alert alert-danger mt-3">{{ error }}</div>
+    }
   </div>
-</ng-template>
+}

@@ -38,59 +38,65 @@
       <ul class="navbar-nav ms-auto align-items-center gap-2">
 
         <!-- Admin Dropdown -->
-        <li class="nav-item dropdown position-relative" *ngIf="isAdmin">
-          <a class="nav-link-premium dropdown-toggle" role="button" (click)="toggleAdminDropdown()">
-            <i class="bi bi-shield-check me-1"></i>Admin
-          </a>
-          <ul class="premium-dropdown" [ngClass]="{ 'show': adminDropdownOpen }">
-            <li>
-              <a class="dropdown-link" routerLink="/admin" (click)="closeMenus()">
-                <i class="bi bi-speedometer2"></i>Dashboard
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-link" routerLink="/admin/cars" (click)="closeMenus()">
-                <i class="bi bi-car-front"></i>Car Management
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-link" routerLink="/admin/bookings" (click)="closeMenus()">
-                <i class="bi bi-calendar-check"></i>Bookings
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-link" routerLink="/admin/users" (click)="closeMenus()">
-                <i class="bi bi-people"></i>Users
-              </a>
-            </li>
-          </ul>
-        </li>
+        @if (isAdmin) {
+          <li class="nav-item dropdown position-relative">
+            <a class="nav-link-premium dropdown-toggle" role="button" (click)="toggleAdminDropdown()">
+              <i class="bi bi-shield-check me-1"></i>Admin
+            </a>
+            <ul class="premium-dropdown" [ngClass]="{ 'show': adminDropdownOpen }">
+              <li>
+                <a class="dropdown-link" routerLink="/admin" (click)="closeMenus()">
+                  <i class="bi bi-speedometer2"></i>Dashboard
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-link" routerLink="/admin/cars" (click)="closeMenus()">
+                  <i class="bi bi-car-front"></i>Car Management
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-link" routerLink="/admin/bookings" (click)="closeMenus()">
+                  <i class="bi bi-calendar-check"></i>Bookings
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-link" routerLink="/admin/users" (click)="closeMenus()">
+                  <i class="bi bi-people"></i>Users
+                </a>
+              </li>
+            </ul>
+          </li>
+        }
 
         <!-- User Dropdown -->
-        <li class="nav-item dropdown position-relative" *ngIf="displayName">
-          <a class="user-badge" role="button" (click)="toggleUserDropdown()">
-            <div class="user-avatar">{{ displayName.charAt(0).toUpperCase() }}</div>
-            <span class="user-name d-none d-lg-inline">{{ displayName }}</span>
-            <i class="bi bi-chevron-down small"></i>
-          </a>
-          <ul class="premium-dropdown dropdown-right" [ngClass]="{ 'show': userDropdownOpen }">
-            <li class="dropdown-header">My Account</li>
-            <li><a class="dropdown-link" routerLink="/home" (click)="closeMenus()"><i class="bi bi-house"></i>Home</a></li>
-            <li><a class="dropdown-link" routerLink="/cars" (click)="closeMenus()"><i class="bi bi-car-front"></i>All Cars</a></li>
-            <li><a class="dropdown-link" (click)="goToLatestBill(); closeMenus()"><i class="bi bi-receipt"></i>Booking Bill</a></li>
-            <li><a class="dropdown-link" routerLink="/my-bookings" (click)="closeMenus()"><i class="bi bi-calendar2-check"></i>My Bookings</a></li>
-            <li><a class="dropdown-link" routerLink="/profile" (click)="closeMenus()"><i class="bi bi-person-circle"></i>Profile</a></li>
-            <li class="dropdown-divider-line"></li>
-            <li><a class="dropdown-link logout-link" (click)="logout()"><i class="bi bi-box-arrow-right"></i>Sign Out</a></li>
-          </ul>
-        </li>
+        @if (displayName) {
+          <li class="nav-item dropdown position-relative">
+            <a class="user-badge" role="button" (click)="toggleUserDropdown()">
+              <div class="user-avatar">{{ displayName.charAt(0).toUpperCase() }}</div>
+              <span class="user-name d-none d-lg-inline">{{ displayName }}</span>
+              <i class="bi bi-chevron-down small"></i>
+            </a>
+            <ul class="premium-dropdown dropdown-right" [ngClass]="{ 'show': userDropdownOpen }">
+              <li class="dropdown-header">My Account</li>
+              <li><a class="dropdown-link" routerLink="/home" (click)="closeMenus()"><i class="bi bi-house"></i>Home</a></li>
+              <li><a class="dropdown-link" routerLink="/cars" (click)="closeMenus()"><i class="bi bi-car-front"></i>All Cars</a></li>
+              <li><a class="dropdown-link" (click)="goToLatestBill(); closeMenus()"><i class="bi bi-receipt"></i>Booking Bill</a></li>
+              <li><a class="dropdown-link" routerLink="/my-bookings" (click)="closeMenus()"><i class="bi bi-calendar2-check"></i>My Bookings</a></li>
+              <li><a class="dropdown-link" routerLink="/profile" (click)="closeMenus()"><i class="bi bi-person-circle"></i>Profile</a></li>
+              <li class="dropdown-divider-line"></li>
+              <li><a class="dropdown-link logout-link" (click)="logout()"><i class="bi bi-box-arrow-right"></i>Sign Out</a></li>
+            </ul>
+          </li>
+        }
 
         <!-- Login Button -->
-        <li class="nav-item" *ngIf="!displayName">
-          <a routerLink="/login" (click)="closeMenus()" class="btn-nav-login">
-            <i class="bi bi-person me-1"></i>Login
-          </a>
-        </li>
+        @if (!displayName) {
+          <li class="nav-item">
+            <a routerLink="/login" (click)="closeMenus()" class="btn-nav-login">
+              <i class="bi bi-person me-1"></i>Login
+            </a>
+          </li>
+        }
 
       </ul>
     </div>

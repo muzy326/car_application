@@ -2,44 +2,63 @@
 <button 
   class="chat-btn btn btn-primary rounded-circle shadow"
   (click)="toggleChat()">
-  <img 
-    *ngIf="minimized" 
-    src="assets/images/ai-assistant-avatar.png" 
-    alt="AI Assistant" 
-    class="chat-toggle-avatar" />
-  <i *ngIf="!minimized" class="fs-4 bi bi-x-lg"></i>
-  <span *ngIf="unreadCount > 0" class="badge bg-danger chat-badge">{{ unreadCount }}</span>
+  @if (minimized) {
+    <img 
+      src="assets/images/ai-assistant-avatar.png" 
+      alt="AI Assistant" 
+      class="chat-toggle-avatar" />
+  }
+  @if (!minimized) {
+    <i class="fs-4 bi bi-x-lg"></i>
+  }
+  @if (unreadCount > 0) {
+    <span class="badge bg-danger chat-badge">{{ unreadCount }}</span>
+  }
 </button>
 
 <!-- Chat Window -->
-<div *ngIf="!minimized" class="card shadow fixed-bottom me-3 mb-5" style="width: 350px; height: 500px; z-index: 1000; right: 0;">
-  <div class="card-header bg-primary text-white d-flex align-items-center justify-content-center gap-2">
-    <img src="assets/images/ai-assistant-avatar.png" alt="AI Assistant" class="header-avatar" />
-    <span>AI Assistant</span>
-  </div>
+@if (!minimized) {
+  <div class="card shadow fixed-bottom me-3 mb-5" style="width: 350px; height: 500px; z-index: 1000; right: 0;">
+    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-center gap-2">
+      <img src="assets/images/ai-assistant-avatar.png" alt="AI Assistant" class="header-avatar" />
+      <span>AI Assistant</span>
+    </div>
 
-  <div #chatBody class="card-body overflow-auto" style="height: 350px;">
-    <div *ngFor="let msg of messages">
-      <div *ngIf="msg.from === 'user'" class="d-flex justify-content-end mb-2">
-        <div class="chat-bubble chat-bubble-user">{{ msg.text }}</div>
-      </div>
-      <div *ngIf="msg.from === 'bot'" class="d-flex justify-content-start align-items-end gap-2 mb-2">
-        <img src="assets/images/ai-assistant-avatar.png" alt="Bot" class="bot-avatar" />
-        <div class="chat-bubble chat-bubble-bot">{{ msg.text }}</div>
-      </div>
+    <div #chatBody class="card-body overflow-auto" style="height: 350px;">
+      @for (msg of messages; track $index) {
+        <div>
+          @if (msg.from === 'user') {
+            <div class="d-flex justify-content-end mb-2">
+              <div class="chat-bubble chat-bubble-user">{{ msg.text }}</div>
+            </div>
+          }
+          @if (msg.from === 'bot') {
+            <div class="d-flex justify-content-start align-items-end gap-2 mb-2">
+              <img src="assets/images/ai-assistant-avatar.png" alt="Bot" class="bot-avatar" />
+              <div class="chat-bubble chat-bubble-bot">{{ msg.text }}</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="card-footer d-flex">
+      <input 
+        [(ngModel)]="userInput"
+        (keyup.enter)="sendMessage()"
+        class="form-control me-2" 
+        placeholder="Ask something..." />
+      <button class="btn btn-primary" (click)="sendMessage()" [disabled]="loading">
+        @if (!loading) {
+          <span>Send</span>
+        }
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        @if (loading) {
+          <span>Sending...</span>
+        }
+      </button>
     </div>
   </div>
-
-  <div class="card-footer d-flex">
-    <input 
-      [(ngModel)]="userInput"
-      (keyup.enter)="sendMessage()"
-      class="form-control me-2" 
-      placeholder="Ask something..." />
-    <button class="btn btn-primary" (click)="sendMessage()" [disabled]="loading">
-      <span *ngIf="!loading">Send</span>
-      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
-      <span *ngIf="loading">Sending...</span>
-    </button>
-  </div>
-</div>
+}

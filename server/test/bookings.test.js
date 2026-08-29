@@ -1,36 +1,38 @@
-
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chaiHttpModule = require('chai-http');
+const chaiHttpPlugin = chaiHttpModule.default || chaiHttpModule;
+chai.use(chaiHttpPlugin);
+const { execute: request } = chaiHttpModule.request;
+
 const app = require('../index');
 const pool = require('../db');
 const jwt = require('jsonwebtoken');
 
-chai.use(chaiHttp);
 const { expect } = chai;
 
 let testUser, testCar, userToken, bookingId;
 
-// ✅ UNIQUE EMAIL (IMPORTANT)
 const USER_EMAIL = 'booking_user@test.com';
+const CAR_NAME = 'Booking Test Car';
 
 describe('Bookings API', function () {
   this.timeout(30000);
 
-  // ------------------ BEFORE ALL ------------------
   before(async function () {
     try {
       console.log('BOOKING BEFORE START');
 
-      // ✅ CLEAN ONLY TEST DATA (NOT EVERYTHING)
-      await pool.query(`DELETE FROM bookings`);
-      await pool.query(`DELETE FROM cars WHERE carname = 'Booking Test Car'`);
+      await pool.query(
+        `DELETE FROM bookings WHERE user_id IN (SELECT id FROM users WHERE email = $1)`,
+        [USER_EMAIL]
+      );
+      await pool.query(`DELETE FROM cars WHERE carname = $1`, [CAR_NAME]);
       await pool.query(`DELETE FROM users WHERE email = $1`, [USER_EMAIL]);
 
       console.log('CLEANUP DONE');
 
-      // ✅ CREATE TEST USER
       const userRes = await pool.query(
         `INSERT INTO users (firstname, lastname, email, password, role)
          VALUES ($1,$2,$3,$4,$5) RETURNING *`,
@@ -38,15 +40,13 @@ describe('Bookings API', function () {
       );
       testUser = userRes.rows[0];
 
-      // ✅ CREATE TEST CAR
       const carRes = await pool.query(
         `INSERT INTO cars (carname, type, price)
          VALUES ($1,$2,$3) RETURNING *`,
-        ['Booking Test Car', 'SUV', 100]
+        [CAR_NAME, 'SUV', 100]
       );
       testCar = carRes.rows[0];
 
-      // ✅ GENERATE TOKEN
       userToken = jwt.sign(
         { id: testUser.id, role: testUser.role },
         process.env.JWT_SECRET || 'secretkey'
@@ -60,13 +60,15 @@ describe('Bookings API', function () {
     }
   });
 
-  // ------------------ AFTER ALL ------------------
   after(async function () {
     try {
       console.log('BOOKING AFTER START');
 
-      await pool.query(`DELETE FROM bookings`);
-      await pool.query(`DELETE FROM cars WHERE carname = 'Booking Test Car'`);
+      await pool.query(
+        `DELETE FROM bookings WHERE user_id IN (SELECT id FROM users WHERE email = $1)`,
+        [USER_EMAIL]
+      );
+      await pool.query(`DELETE FROM cars WHERE carname = $1`, [CAR_NAME]);
       await pool.query(`DELETE FROM users WHERE email = $1`, [USER_EMAIL]);
 
       console.log('BOOKING AFTER DONE');
@@ -76,9 +78,8 @@ describe('Bookings API', function () {
     }
   });
 
-  // ------------------ CREATE BOOKING ------------------
   it('should create a new booking', async function () {
-    const res = await chai.request(app)
+    const res = await request(app)
       .post('/api/bookings')
       .set('Authorization', `Bearer ${userToken}`)
       .send({
@@ -93,9 +94,8 @@ describe('Bookings API', function () {
     bookingId = res.body.id;
   });
 
-  // ------------------ CURRENT BOOKINGS ------------------
   it('should get current bookings', async function () {
-    const res = await chai.request(app)
+    const res = await request(app)
       .get('/api/bookings/my-bookings/current')
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -103,9 +103,8 @@ describe('Bookings API', function () {
     expect(res.body).to.be.an('array');
   });
 
-  // ------------------ HISTORY ------------------
   it('should get booking history', async function () {
-    const res = await chai.request(app)
+    const res = await request(app)
       .get('/api/bookings/my-bookings/history')
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -113,9 +112,8 @@ describe('Bookings API', function () {
     expect(res.body).to.be.an('array');
   });
 
-  // ------------------ UPDATE ------------------
   it('should update booking status', async function () {
-    const res = await chai.request(app)
+    const res = await request(app)
       .put(`/api/bookings/${bookingId}`)
       .set('Authorization', `Bearer ${userToken}`)
       .send({ status: 'Confirmed' });
@@ -124,9 +122,8 @@ describe('Bookings API', function () {
     expect(res.body.status).to.equal('Confirmed');
   });
 
-  // ------------------ DELETE ------------------
   it('should delete booking', async function () {
-    const res = await chai.request(app)
+    const res = await request(app)
       .delete(`/api/bookings/${bookingId}`)
       .set('Authorization', `Bearer ${userToken}`);
 

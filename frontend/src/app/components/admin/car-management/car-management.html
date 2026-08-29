@@ -21,23 +21,25 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let car of pagedCars">
-          <td><img [src]="car.imageUrl || 'assets/no-image.jpg'" width="40" height="40" class="rounded-circle"></td>
-          <td>{{ car.carname }}</td>
-          <td>${{ car.price }}</td>
-          <td>{{ car.description }}</td>
-          <td>{{ car.type }}</td>
-          <td><span class="badge" [ngClass]="car.available ? 'bg-success' : 'bg-danger'">{{ car.available ? 'Available' : 'Not Available' }}</span></td>
-          <td>
-            <ng-container *ngFor="let filled of getStarsArray(car.rating)">
-              <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
-            </ng-container>
-          </td>
-          <td>
-            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#carModal" (click)="editCar(car)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="deleteCar(car.id)">Delete</button>
-          </td>
-        </tr>
+        @for (car of pagedCars; track car.id) {
+          <tr>
+            <td><img [src]="car.imageUrl || 'assets/no-image.jpg'" width="40" height="40" class="rounded-circle"></td>
+            <td>{{ car.carname }}</td>
+            <td>${{ car.price }}</td>
+            <td>{{ car.description }}</td>
+            <td>{{ car.type }}</td>
+            <td><span class="badge" [ngClass]="car.available ? 'bg-success' : 'bg-danger'">{{ car.available ? 'Available' : 'Not Available' }}</span></td>
+            <td>
+              @for (filled of getStarsArray(car.rating); track $index) {
+                <i class="bi" [ngClass]="filled ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"></i>
+              }
+            </td>
+            <td>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#carModal" (click)="editCar(car)">Edit</button>
+              <button class="btn btn-danger btn-sm" (click)="deleteCar(car.id)">Delete</button>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>

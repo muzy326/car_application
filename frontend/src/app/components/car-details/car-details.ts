@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CarService } from '../../services/car-service';
@@ -13,6 +13,7 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, RouterModule, BookingFormComponent],
   templateUrl: './car-details.html',
   styleUrls: ['./car-details.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CarDetailsComponent implements OnInit {
   car: Car | null = null;
@@ -44,6 +45,7 @@ export class CarDetailsComponent implements OnInit {
     if (isPlatformBrowser(this.platformId) && !this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       this.loading = false;
+      this.cdr.markForCheck();
       return;
     }
 
@@ -61,7 +63,7 @@ export class CarDetailsComponent implements OnInit {
         discount: car.discount ?? 0,
       };
       this.loading = false;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     } catch (err) {
       console.error('Failed to load car:', err);
       this.setError('Failed to load car details');
@@ -72,7 +74,7 @@ export class CarDetailsComponent implements OnInit {
     this.error = true;
     this.errorMessage = message;
     this.loading = false;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onImageError(event: any) {

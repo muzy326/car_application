@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, ViewChild } from "@angular/core";
 import { AmchartsLoaderService } from "../../../services/amcharts-loader.service";
 import { CommonModule } from "@angular/common";
 
@@ -6,6 +6,7 @@ import { CommonModule } from "@angular/common";
   selector: 'bar-chart',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card p-3 shadow-sm">
       <h5 class="text-center">{{ title }}</h5>

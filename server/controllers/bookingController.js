@@ -156,7 +156,9 @@ exports.getBookingById = async (req, res) => {
         u.firstname,
         u.lastname,
         u.email,
+        u.phonenumber,
         c.carname,
+        c.type,
         c.price
       FROM bookings b
       JOIN users u ON b.user_id = u.id

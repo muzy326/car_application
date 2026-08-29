@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -12,7 +12,8 @@ import { STORAGE_KEYS } from '../../../core/constants/storage-keys.const';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './nav-bar.html',
-  styleUrls: ['./nav-bar.css']
+  styleUrls: ['./nav-bar.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavBarComponent implements OnInit {
 
@@ -31,11 +32,11 @@ export class NavBarComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private bookingService: BookingService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // Always establish browser context first before touching any browser APIs
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
@@ -44,12 +45,12 @@ export class NavBarComponent implements OnInit {
 
       this.loadAuthState();
 
-      // fetch latest booking safely
       if (!this.isAdmin && this.userId) {
         this.bookingService.getCurrentBooking().subscribe({
           next: (bookings: Booking[]) => {
             if (bookings && bookings.length > 0 && bookings[0].id) {
               this.latestBookingId = bookings[0].id;
+              this.cdr.markForCheck();
             }
           },
           error: err => console.error('Failed to fetch latest booking', err)
@@ -57,7 +58,6 @@ export class NavBarComponent implements OnInit {
       }
     }
 
-    // Re-read auth state and close menus on every route change
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -65,6 +65,7 @@ export class NavBarComponent implements OnInit {
         if (this.isBrowser) {
           this.loadAuthState();
         }
+        this.cdr.markForCheck();
       });
   }
 
@@ -76,6 +77,7 @@ export class NavBarComponent implements OnInit {
 
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
+    this.cdr.markForCheck();
   }
 
   goToLatestBill() {
@@ -96,16 +98,19 @@ export class NavBarComponent implements OnInit {
 
   toggleAdminDropdown() {
     this.adminDropdownOpen = !this.adminDropdownOpen;
+    this.cdr.markForCheck();
   }
 
   toggleUserDropdown() {
     this.userDropdownOpen = !this.userDropdownOpen;
+    this.cdr.markForCheck();
   }
 
   closeMenus() {
     this.isCollapsed = true;
     this.adminDropdownOpen = false;
     this.userDropdownOpen = false;
+    this.cdr.markForCheck();
   }
 
   logout() {

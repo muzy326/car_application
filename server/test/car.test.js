@@ -1,31 +1,37 @@
-
+process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chaiHttpModule = require('chai-http');
+const chaiHttpPlugin = chaiHttpModule.default || chaiHttpModule;
+chai.use(chaiHttpPlugin);
+const { execute: request } = chaiHttpModule.request;
+
 const app = require('../index');
 const pool = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-chai.use(chaiHttp);
 const { expect } = chai;
 
 let adminToken, userToken, carId;
 
 const ADMIN_EMAIL = 'admin_car@test.com';
 const USER_EMAIL = 'user_car@test.com';
+const CAR_NAME = 'Test Car';
+const CAR_NAME_UPDATED = 'Updated Car';
 
 describe('Cars API', function () {
   this.timeout(20000);
 
   before(async function () {
     try {
-      // cleanup
-      await pool.query(`DELETE FROM bookings`);
-      await pool.query(`DELETE FROM cars`);
+      await pool.query(
+        `DELETE FROM bookings WHERE user_id IN (SELECT id FROM users WHERE email IN ($1,$2))`,
+        [ADMIN_EMAIL, USER_EMAIL]
+      );
+      await pool.query(`DELETE FROM cars WHERE carname IN ($1,$2)`, [CAR_NAME, CAR_NAME_UPDATED]);
       await pool.query(`DELETE FROM users WHERE email IN ($1,$2)`, [ADMIN_EMAIL, USER_EMAIL]);
 
-      // create admin
       const hashedAdmin = await bcrypt.hash('123456', 10);
       const adminRes = await pool.query(
         `INSERT INTO users (firstname, lastname, email, password, role)
@@ -38,7 +44,6 @@ describe('Cars API', function () {
         process.env.JWT_SECRET || 'demo_secret'
       );
 
-      // create user
       const hashedUser = await bcrypt.hash('123456', 10);
       const userRes = await pool.query(
         `INSERT INTO users (firstname, lastname, email, password, role)
@@ -58,17 +63,17 @@ describe('Cars API', function () {
   });
 
   it('should create a car (admin)', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .post('/api/cars')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ carname: 'Test Car', price: 100 });
+      .send({ carname: CAR_NAME, price: 100 });
 
     expect(res).to.have.status(201);
     carId = res.body.car.id;
   });
 
   it('should get all cars', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .get('/api/cars')
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -76,16 +81,16 @@ describe('Cars API', function () {
   });
 
   it('should update a car', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .put(`/api/cars/${carId}`)
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ carname: 'Updated Car', price: 120 });
+      .send({ carname: CAR_NAME_UPDATED, price: 120 });
 
     expect(res).to.have.status(200);
   });
 
   it('should delete a car', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .delete(`/api/cars/${carId}`)
       .set('Authorization', `Bearer ${adminToken}`);
 
@@ -93,8 +98,11 @@ describe('Cars API', function () {
   });
 
   after(async function () {
-    await pool.query(`DELETE FROM bookings`);
-    await pool.query(`DELETE FROM cars`);
+    await pool.query(
+      `DELETE FROM bookings WHERE user_id IN (SELECT id FROM users WHERE email IN ($1,$2))`,
+      [ADMIN_EMAIL, USER_EMAIL]
+    );
+    await pool.query(`DELETE FROM cars WHERE carname IN ($1,$2)`, [CAR_NAME, CAR_NAME_UPDATED]);
     await pool.query(`DELETE FROM users WHERE email IN ($1,$2)`, [ADMIN_EMAIL, USER_EMAIL]);
   });
 });

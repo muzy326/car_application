@@ -24,9 +24,11 @@
           formControlName="startDate"
           [class.date-error]="submitted && bookingForm.controls['startDate'].invalid"
         />
-        <div *ngIf="submitted && bookingForm.controls['startDate'].invalid" class="date-error-msg">
-          Start date is required
-        </div>
+        @if (submitted && bookingForm.controls['startDate'].invalid) {
+          <div class="date-error-msg">
+            Start date is required
+          </div>
+        }
       </div>
 
       <!-- End Date -->
@@ -40,35 +42,47 @@
           formControlName="endDate"
           [class.date-error]="submitted && bookingForm.controls['endDate'].invalid"
         />
-        <div *ngIf="submitted && bookingForm.controls['endDate'].invalid" class="date-error-msg">
-          End date is required
-        </div>
+        @if (submitted && bookingForm.controls['endDate'].invalid) {
+          <div class="date-error-msg">
+            End date is required
+          </div>
+        }
       </div>
 
     </div>
 
     <!-- Price preview -->
-    <div class="price-preview" *ngIf="car">
-      <div class="pp-row">
-        <span><i class="bi bi-currency-dollar me-1"></i>Daily Rate</span>
-        <span class="pp-val">${{ car.price }}/day</span>
+    @if (car) {
+      <div class="price-preview">
+        <div class="pp-row">
+          <span><i class="bi bi-currency-dollar me-1"></i>Daily Rate</span>
+          <span class="pp-val">${{ car.price }}/day</span>
+        </div>
+        @if (car.discount && car.discount > 0) {
+          <div class="pp-row">
+            <span><i class="bi bi-tag me-1"></i>Discount</span>
+            <span class="pp-val pp-discount">-{{ car.discount }}%</span>
+          </div>
+        }
+        <div class="pp-row">
+          <span><i class="bi bi-calendar-range me-1"></i>Duration</span>
+          <span class="pp-val">{{ totalDays }} day{{ totalDays > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="pp-divider"></div>
+        <div class="pp-row pp-total">
+          <span>Estimated Total</span>
+          <span class="pp-total-val">${{ totalPrice }}</span>
+        </div>
       </div>
-      <div class="pp-row" *ngIf="car.discount && car.discount > 0">
-        <span><i class="bi bi-tag me-1"></i>Discount</span>
-        <span class="pp-val pp-discount">-{{ car.discount }}%</span>
-      </div>
-      <div class="pp-divider"></div>
-      <div class="pp-row pp-total">
-        <span>Estimated Total</span>
-        <span class="pp-total-val">${{ car.price }}</span>
-      </div>
-    </div>
+    }
 
     <!-- Availability warning -->
-    <div *ngIf="car && !car.available" class="avail-warning">
-      <i class="bi bi-exclamation-triangle-fill me-2"></i>
-      This car is currently unavailable for booking.
-    </div>
+    @if (car && !car.available) {
+      <div class="avail-warning">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        This car is currently unavailable for booking.
+      </div>
+    }
 
     <!-- Submit -->
     <button
@@ -76,12 +90,16 @@
       class="btn-book-submit"
       [disabled]="loading || bookingForm.invalid || (car && !car.available)"
     >
-      <span *ngIf="!loading">
-        <i class="bi bi-lightning-charge-fill me-2"></i>Book Now
-      </span>
-      <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
-        <span class="spinner-border spinner-border-sm"></span>Processing...
-      </span>
+      @if (!loading) {
+        <span>
+          <i class="bi bi-lightning-charge-fill me-2"></i>Book Now
+        </span>
+      }
+      @if (loading) {
+        <span class="d-flex align-items-center justify-content-center gap-2">
+          <span class="spinner-border spinner-border-sm"></span>Processing...
+        </span>
+      }
     </button>
 
     <!-- Info chips -->

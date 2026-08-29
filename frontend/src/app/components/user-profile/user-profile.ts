@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 import { UserService } from '../../services/user-service';
 import { User } from '../../../core/models/user.model';
@@ -12,7 +11,8 @@ import { User } from '../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './user-profile.html',
-  styleUrls: ['./user-profile.css']
+  styleUrls: ['./user-profile.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserProfileComponent implements OnInit {
 
@@ -20,10 +20,9 @@ export class UserProfileComponent implements OnInit {
   loading = false;
   user?: User;
 
-  constructor(private fb: FormBuilder, private userService: UserService) {}
+  constructor(private fb: FormBuilder, private userService: UserService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    // Build reactive form
     this.userForm = this.fb.group({
       firstname: ['', [Validators.required, Validators.minLength(2)]],
       lastname: [''],
@@ -31,7 +30,6 @@ export class UserProfileComponent implements OnInit {
       phonenumber: ['', [Validators.minLength(10)]]
     });
 
-    // Load user profile
     this.loading = true;
     this.userService.getProfile().subscribe({
       next: (res: User) => {
@@ -43,10 +41,12 @@ export class UserProfileComponent implements OnInit {
           phonenumber: res.phonenumber || ''
         });
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error(err);
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

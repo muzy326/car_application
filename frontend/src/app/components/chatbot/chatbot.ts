@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat.service';
@@ -9,7 +9,8 @@ import { AuthService } from '../../services/auth-service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './chatbot.html',
-  styleUrls: ['./chatbot.css']
+  styleUrls: ['./chatbot.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatbotComponent {
   userInput = '';
@@ -27,12 +28,14 @@ export class ChatbotComponent {
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   toggleChat() {
     this.minimized = !this.minimized;
     if (!this.minimized) this.unreadCount = 0;
+    this.cdr.markForCheck();
     setTimeout(() => this.scrollToBottom(), 0);
   }
 
@@ -48,6 +51,7 @@ export class ChatbotComponent {
     // User message
     this.messages.push({ text: msg, from: 'user' });
     this.userInput = '';
+    this.cdr.markForCheck();
     this.scrollToBottom();
 
     const wantsToBook = this.looksLikeBooking(msg);
@@ -59,11 +63,13 @@ export class ChatbotComponent {
         from: 'bot'
       });
       if (this.minimized) this.unreadCount++;
+      this.cdr.markForCheck();
       this.scrollToBottom();
       return;
     }
 
     this.loading = true;
+    this.cdr.markForCheck();
 
     const request$ = wantsToBook
       ? this.chatService.sendBookingMessage(msg)
@@ -76,6 +82,7 @@ export class ChatbotComponent {
         this.messages.push({ text: reply, from: 'bot' });
 
         if (this.minimized) this.unreadCount++;
+        this.cdr.markForCheck();
         this.scrollToBottom();
       },
       error: () => {
@@ -85,6 +92,7 @@ export class ChatbotComponent {
           from: 'bot'
         });
         if (this.minimized) this.unreadCount++;
+        this.cdr.markForCheck();
         this.scrollToBottom();
       }
     });

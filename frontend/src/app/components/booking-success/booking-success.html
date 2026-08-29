@@ -22,41 +22,47 @@
       <p class="success-sub">Your reservation has been received and is being processed. We'll notify you shortly.</p>
 
       <!-- Booking details -->
-      <div *ngIf="booking" class="booking-detail-box animate-fade-up delay-2">
-        <div class="bd-header">
-          <i class="bi bi-receipt me-2"></i>Booking Summary
+      @if (booking) {
+        <div class="booking-detail-box animate-fade-up delay-2">
+          <div class="bd-header">
+            <i class="bi bi-receipt me-2"></i>Booking Summary
+          </div>
+          <div class="bd-grid">
+            <div class="bd-item">
+              <span class="bd-label">Booking ID</span>
+              <span class="bd-val">#{{ booking.id }}</span>
+            </div>
+            <div class="bd-item">
+              <span class="bd-label">Status</span>
+              <span class="bd-val">
+                <span class="status-badge">{{ booking.status }}</span>
+              </span>
+            </div>
+            <div class="bd-item">
+              <span class="bd-label">Start Date</span>
+              <span class="bd-val">{{ booking.start_date | date:'mediumDate' }}</span>
+            </div>
+            <div class="bd-item">
+              <span class="bd-label">End Date</span>
+              <span class="bd-val">{{ booking.end_date | date:'mediumDate' }}</span>
+            </div>
+            @if (booking.pricePerDay) {
+              <div class="bd-item">
+                <span class="bd-label">Price / Day</span>
+                <span class="bd-val">${{ booking.pricePerDay }}</span>
+              </div>
+            }
+          </div>
         </div>
-        <div class="bd-grid">
-          <div class="bd-item">
-            <span class="bd-label">Booking ID</span>
-            <span class="bd-val">#{{ booking.id }}</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Status</span>
-            <span class="bd-val">
-              <span class="status-badge">{{ booking.status }}</span>
-            </span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Start Date</span>
-            <span class="bd-val">{{ booking.start_date | date:'mediumDate' }}</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">End Date</span>
-            <span class="bd-val">{{ booking.end_date | date:'mediumDate' }}</span>
-          </div>
-          <div class="bd-item" *ngIf="booking.pricePerDay">
-            <span class="bd-label">Price / Day</span>
-            <span class="bd-val">${{ booking.pricePerDay }}</span>
-          </div>
-        </div>
-      </div>
+      }
 
       <!-- Action buttons -->
       <div class="success-actions animate-fade-up delay-3">
-        <a *ngIf="booking" [routerLink]="['/booking-bill', booking.id]" class="btn-premium">
-          <i class="bi bi-receipt me-2"></i>View Bill
-        </a>
+        @if (booking) {
+          <a [routerLink]="['/booking-bill', booking.id]" class="btn-premium">
+            <i class="bi bi-receipt me-2"></i>View Bill
+          </a>
+        }
         <a routerLink="/my-bookings" class="btn-success-outline">
           <i class="bi bi-calendar-check me-2"></i>My Bookings
         </a>

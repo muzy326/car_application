@@ -64,24 +64,24 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "car-application:build:production"
-            },
-            "development": {
-              "buildTarget": "car-application:build:development"
-            }
-          },
-          "defaultConfiguration": "development",
-          "options": {
-            "port": 5000,
-            "host": "0.0.0.0",
-            "allowedHosts": true,
-            "proxyConfig": "proxy.conf.json"
-          }
-        },
+   "serve": {
+  "builder": "@angular/build:dev-server",
+  "configurations": {
+    "production": {
+      "buildTarget": "car-application:build:production"
+    },
+    "development": {
+      "buildTarget": "car-application:build:development"
+    }
+  },
+  "defaultConfiguration": "development",
+  "options": {
+    "port": 4200,
+    "host": "0.0.0.0",
+    "allowedHosts": true,
+    "proxyConfig": "proxy.conf.json"
+  }
+},
         "test": {
           "builder": "@angular/build:unit-test"
         }

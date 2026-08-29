@@ -94,16 +94,19 @@
             </div>
           </div>
           <div class="chart-body">
-            <donut-chart
-              *ngIf="topCarsData.length"
-              [data]="topCarsData"
-              [keys]="{ label: 'name', value: 'value' }"
-              [title]="'Car Types Distribution'"
-              [noDataText]="'No car data available!'">
-            </donut-chart>
-            <div *ngIf="!topCarsData.length" class="chart-empty">
-              <i class="bi bi-pie-chart"></i><p>No data yet</p>
-            </div>
+            @if (topCarsData.length) {
+              <donut-chart
+                [data]="topCarsData"
+                [keys]="{ label: 'name', value: 'value' }"
+                [title]="'Car Types Distribution'"
+                [noDataText]="'No car data available!'">
+              </donut-chart>
+            }
+            @if (!topCarsData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-pie-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -116,16 +119,19 @@
             </div>
           </div>
           <div class="chart-body">
-            <pie-chart
-              *ngIf="bookingStatusData.length"
-              [data]="bookingStatusData"
-              [keys]="{ label: 'name', value: 'value' }"
-              [title]="'Booking Status Distribution'"
-              [noDataText]="'No booking status data available!'">
-            </pie-chart>
-            <div *ngIf="!bookingStatusData.length" class="chart-empty">
-              <i class="bi bi-pie-chart"></i><p>No data yet</p>
-            </div>
+            @if (bookingStatusData.length) {
+              <pie-chart
+                [data]="bookingStatusData"
+                [keys]="{ label: 'name', value: 'value' }"
+                [title]="'Booking Status Distribution'"
+                [noDataText]="'No booking status data available!'">
+              </pie-chart>
+            }
+            @if (!bookingStatusData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-pie-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -142,17 +148,20 @@
             </div>
           </div>
           <div class="chart-body">
-            <bar-chart
-              *ngIf="monthlyBookingData.length"
-              [data]="monthlyBookingData"
-              [categoryField]="'name'"
-              [valueField]="'value'"
-              [title]="'Monthly Booking Trends'"
-              [noDataText]="'No monthly data available!'">
-            </bar-chart>
-            <div *ngIf="!monthlyBookingData.length" class="chart-empty">
-              <i class="bi bi-bar-chart"></i><p>No data yet</p>
-            </div>
+            @if (monthlyBookingData.length) {
+              <bar-chart
+                [data]="monthlyBookingData"
+                [categoryField]="'name'"
+                [valueField]="'value'"
+                [title]="'Monthly Booking Trends'"
+                [noDataText]="'No monthly data available!'">
+              </bar-chart>
+            }
+            @if (!monthlyBookingData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-bar-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -165,17 +174,20 @@
             </div>
           </div>
           <div class="chart-body">
-            <bar-chart
-              *ngIf="dailyBookingData.length"
-              [data]="dailyBookingData"
-              [categoryField]="'name'"
-              [valueField]="'value'"
-              [title]="'Daily Booking Trends'"
-              [noDataText]="'No daily data available!'">
-            </bar-chart>
-            <div *ngIf="!dailyBookingData.length" class="chart-empty">
-              <i class="bi bi-bar-chart"></i><p>No data yet</p>
-            </div>
+            @if (dailyBookingData.length) {
+              <bar-chart
+                [data]="dailyBookingData"
+                [categoryField]="'name'"
+                [valueField]="'value'"
+                [title]="'Daily Booking Trends'"
+                [noDataText]="'No daily data available!'">
+              </bar-chart>
+            }
+            @if (!dailyBookingData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-bar-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -192,17 +204,20 @@
             </div>
           </div>
           <div class="chart-body">
-            <bar-chart
-              *ngIf="revenueChartData.length"
-              [data]="revenueChartData"
-              [categoryField]="'name'"
-              [valueField]="'value'"
-              [title]="'Revenue by Month (SAR)'"
-              [noDataText]="'No revenue data available!'">
-            </bar-chart>
-            <div *ngIf="!revenueChartData.length" class="chart-empty">
-              <i class="bi bi-bar-chart"></i><p>No data yet</p>
-            </div>
+            @if (revenueChartData.length) {
+              <bar-chart
+                [data]="revenueChartData"
+                [categoryField]="'name'"
+                [valueField]="'value'"
+                [title]="'Revenue by Month (SAR)'"
+                [noDataText]="'No revenue data available!'">
+              </bar-chart>
+            }
+            @if (!revenueChartData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-bar-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -215,17 +230,20 @@
             </div>
           </div>
           <div class="chart-body">
-            <bar-chart
-              *ngIf="customerGrowthData.length"
-              [data]="customerGrowthData"
-              [categoryField]="'name'"
-              [valueField]="'value'"
-              [title]="'New Customers by Month'"
-              [noDataText]="'No customer growth data available!'">
-            </bar-chart>
-            <div *ngIf="!customerGrowthData.length" class="chart-empty">
-              <i class="bi bi-bar-chart"></i><p>No data yet</p>
-            </div>
+            @if (customerGrowthData.length) {
+              <bar-chart
+                [data]="customerGrowthData"
+                [categoryField]="'name'"
+                [valueField]="'value'"
+                [title]="'New Customers by Month'"
+                [noDataText]="'No customer growth data available!'">
+              </bar-chart>
+            }
+            @if (!customerGrowthData.length) {
+              <div class="chart-empty">
+                <i class="bi bi-bar-chart"></i><p>No data yet</p>
+              </div>
+            }
           </div>
         </div>
       </div>

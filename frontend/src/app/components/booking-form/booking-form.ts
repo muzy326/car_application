@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, Input, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Input, OnChanges, OnInit, PLATFORM_ID, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
@@ -13,9 +13,10 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './booking-form.html',
-  styleUrls: ['./booking-form.css']
+  styleUrls: ['./booking-form.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookingFormComponent implements OnInit {
+export class BookingFormComponent implements OnInit, OnChanges {
 
   @Input() car?: Car;
 
@@ -23,13 +24,17 @@ export class BookingFormComponent implements OnInit {
   loading = false;
   submitted = false;
 
+  totalDays = 1;
+  totalPrice = 0;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private fb: FormBuilder,
     private bookingCoreService: BookingCoreService,
     private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {
     this.bookingForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -37,10 +42,46 @@ export class BookingFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.updateTotal();
+    this.bookingForm.valueChanges.subscribe(() => this.updateTotal());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['car']) {
+      this.updateTotal();
+    }
+  }
+
+  private updateTotal(): void {
+    if (!this.car) {
+      this.totalDays = 1;
+      this.totalPrice = 0;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const { startDate, endDate } = this.bookingForm.value;
+    let days = 1;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      days = diff > 0 ? diff : 1;
+    }
+
+    const discount = this.car.discount ?? 0;
+    const pricePerDay = this.car.price * (1 - discount / 100);
+
+    this.totalDays = days;
+    this.totalPrice = +(pricePerDay * days).toFixed(2);
+    this.cdr.markForCheck();
+  }
 
   submitBooking(): void {
     this.submitted = true;
+    this.cdr.markForCheck();
 
     if (this.bookingForm.invalid || !this.car) return;
 
@@ -52,6 +93,7 @@ export class BookingFormComponent implements OnInit {
 
     const { startDate, endDate } = this.bookingForm.value;
     this.loading = true;
+    this.cdr.markForCheck();
 
     this.bookingCoreService.bookCarCore({
       carId: this.car.id!,
@@ -66,12 +108,14 @@ export class BookingFormComponent implements OnInit {
           localStorage.setItem(STORAGE_KEYS.LATEST_BOOKING_ID, res.id);
         }
 
+        this.cdr.markForCheck();
         this.router.navigate(['/booking-success']);
       },
       error: (err) => {
         console.error('Booking failed:', err);
         this.toastr.error(err.message || 'Booking failed!');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

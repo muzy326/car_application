@@ -1,7 +1,7 @@
 import {
-  Component, ElementRef, ViewChild,
+  AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild,
   Input, Output, EventEmitter,
-  AfterViewInit, OnDestroy, OnChanges, SimpleChanges, NgZone
+  OnDestroy, OnChanges, SimpleChanges, NgZone
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AmchartsLoaderService } from '../../../services/amcharts-loader.service';
@@ -10,14 +10,17 @@ import { AmchartsLoaderService } from '../../../services/amcharts-loader.service
   selector: 'donut-chart',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card p-3 shadow-sm">
       <h5 class="text-center">{{ title }}</h5>
       <div #chartDiv class="chart"></div>
 
-      <div *ngIf="!data.length" class="text-center text-muted">
-        {{ noDataText }}
-      </div>
+      @if (!data.length) {
+        <div class="text-center text-muted">
+          {{ noDataText }}
+        </div>
+      }
     </div>
   `,
   styles: [`.chart{height:350px;width:100%}`]

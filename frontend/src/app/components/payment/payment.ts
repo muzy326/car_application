@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
 
 @Component({
@@ -6,9 +6,10 @@ import { PaymentService } from '../../services/payment.service';
   imports: [],
   templateUrl: './payment.html',
   styleUrl: './payment.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaymentComponent {
-constructor(private paymentService: PaymentService) {}
+  constructor(private paymentService: PaymentService) {}
 
   makePayment() {
     this.paymentService.createPayment({
@@ -29,4 +30,3 @@ constructor(private paymentService: PaymentService) {}
     });
   }
 }
-

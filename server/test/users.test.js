@@ -1,38 +1,35 @@
-
-
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chaiHttpModule = require('chai-http');
+const chaiHttpPlugin = chaiHttpModule.default || chaiHttpModule;
+chai.use(chaiHttpPlugin);
+const { execute: request } = chaiHttpModule.request;
+
 const app = require('../index');
 const pool = require('../db');
 const bcrypt = require('bcryptjs');
 
-chai.use(chaiHttp);
 const { expect } = chai;
 
 let adminToken;
 let userToken;
 
-// ✅ UNIQUE EMAILS (VERY IMPORTANT)
 const ADMIN_EMAIL = 'admin_user@test.com';
 const USER_EMAIL = 'user_user@test.com';
 
 describe('User API', function () {
   this.timeout(20000);
 
-  // ------------------ BEFORE ------------------
   before(async function () {
     try {
       console.log('USER TEST BEFORE START');
 
-      // ✅ CLEAN ONLY TEST DATA
       await pool.query(`DELETE FROM users WHERE email IN ($1,$2)`, [
         ADMIN_EMAIL,
         USER_EMAIL
       ]);
 
-      // ✅ CREATE ADMIN
       const hashedAdmin = await bcrypt.hash('123456', 10);
       await pool.query(
         `INSERT INTO users (firstname, lastname, email, password, role)
@@ -40,7 +37,6 @@ describe('User API', function () {
         ['Test', 'Admin', ADMIN_EMAIL, hashedAdmin, 'Admin']
       );
 
-      // ✅ CREATE USER
       const hashedUser = await bcrypt.hash('user123', 10);
       await pool.query(
         `INSERT INTO users (firstname, lastname, email, password, role)
@@ -61,9 +57,8 @@ describe('User API', function () {
     }
   });
 
-  // ------------------ TESTS ------------------
   it('should login admin', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .post('/api/users/login')
       .send({ email: ADMIN_EMAIL, password: '123456' });
 
@@ -76,7 +71,7 @@ describe('User API', function () {
   });
 
   it('should login user', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .post('/api/users/login')
       .send({ email: USER_EMAIL, password: 'user123' });
 
@@ -87,7 +82,7 @@ describe('User API', function () {
   });
 
   it('should get admin profile', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .get('/api/users/profile')
       .set('Authorization', `Bearer ${adminToken}`);
 
@@ -97,7 +92,7 @@ describe('User API', function () {
   });
 
   it('should get user profile', async () => {
-    const res = await chai.request(app)
+    const res = await request(app)
       .get('/api/users/profile')
       .set('Authorization', `Bearer ${userToken}`);
 
@@ -106,7 +101,6 @@ describe('User API', function () {
     expect(res.body.role).to.equal('User');
   });
 
-  // ------------------ AFTER ------------------
   after(async function () {
     try {
       console.log('USER TEST CLEANUP');

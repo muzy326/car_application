@@ -1,11 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { AfterViewInit, Component, ElementRef, Input, NgZone, OnChanges, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, NgZone, OnChanges, OnDestroy, ViewChild } from "@angular/core";
 import { AmchartsLoaderService } from "../../../services/amcharts-loader.service";
 
 @Component({
   selector: 'pie-chart',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card p-3 shadow-sm">
       <h5 class="text-center">{{ title }}</h5>

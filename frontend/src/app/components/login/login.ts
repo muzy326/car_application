@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -10,7 +10,8 @@ import { AuthService } from '../../services/auth-service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   loading = false;
@@ -42,14 +43,17 @@ export class LoginComponent {
     }
 
     this.loginError = '';
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.loading = true;
+      this.cdr.markForCheck();
     });
 
     this.authService.login(this.model.email, this.model.password).subscribe({
       next: (res) => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.toastr.success(`Welcome ${res.user.name}`);
 
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
@@ -62,6 +66,8 @@ export class LoginComponent {
         if (err.status === 401) this.loginError = 'Incorrect password';
         else if (err.status === 404) this.loginError = 'User not found';
         else this.loginError = 'Login failed. Please try again.';
+
+        this.cdr.markForCheck();
       }
     });
   }

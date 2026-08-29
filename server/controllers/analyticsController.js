@@ -6,7 +6,7 @@ const pool = require('../db');
 exports.getSummary = async (req, res) => {
   try {
     const revenueResult = await pool.query(`
-      SELECT COALESCE(SUM(c.price * GREATEST(EXTRACT(DAY FROM (b.end_date - b.start_date))::int, 1)), 0) AS total_revenue
+      SELECT COALESCE(SUM(c.price * GREATEST((b.end_date - b.start_date)::int, 1)), 0) AS total_revenue
       FROM bookings b JOIN cars c ON b.car_id = c.id
       WHERE b.status != 'Cancelled'
     `);
@@ -35,7 +35,7 @@ exports.getRevenueByMonth = async (req, res) => {
       SELECT
         to_char(date_trunc('month', b.start_date), 'Mon YYYY') AS month,
         date_trunc('month', b.start_date) AS month_sort,
-        SUM(c.price * GREATEST(EXTRACT(DAY FROM (b.end_date - b.start_date))::int, 1)) AS revenue
+        SUM(c.price * GREATEST((b.end_date - b.start_date)::int, 1)) AS revenue
       FROM bookings b
       JOIN cars c ON b.car_id = c.id
       WHERE b.status != 'Cancelled'
@@ -53,6 +53,7 @@ exports.getRevenueByMonth = async (req, res) => {
     res.status(500).json({ message: 'Error fetching revenue data' });
   }
 };
+
 // --------------------------
 // POPULAR CARS (top 5 by booking count)
 // --------------------------

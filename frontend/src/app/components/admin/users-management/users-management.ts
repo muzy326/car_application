@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -10,7 +10,8 @@ import { User } from '../../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule],
   templateUrl: './users-management.html',
-  styleUrls: ['./users-management.css']
+  styleUrls: ['./users-management.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UsersManagementComponent {
 
@@ -32,7 +33,7 @@ export class UsersManagementComponent {
   p: number = 1;
   itemsPerPage: number = 5;
 
-  constructor(private userService: UserService) {
+  constructor(private userService: UserService, private cdr: ChangeDetectorRef) {
     this.loadUsers();
   }
 
@@ -44,10 +45,12 @@ export class UsersManagementComponent {
         this.users = res;
         this.filterUsers();
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         console.error('Failed to load users', err);
         this.loading = false;
+        this.cdr.markForCheck();
         if (err.status === 401) alert('Unauthorized. Please login again.');
       }
     });
@@ -68,6 +71,7 @@ export class UsersManagementComponent {
       );
     }
     this.p = 1;
+    this.cdr.markForCheck();
   }
 
   /** Pagination */
@@ -84,6 +88,7 @@ export class UsersManagementComponent {
   saveUser(form: NgForm): void {
     if (form.invalid) return;
     this.loading = true;
+    this.cdr.markForCheck();
 
     if (this.editingUserId !== null) {
       // Update user
@@ -96,8 +101,12 @@ export class UsersManagementComponent {
         error: (err: any) => {
           console.error('Failed to update user', err);
           this.loading = false;
+          this.cdr.markForCheck();
         },
-        complete: () => this.loading = false
+        complete: () => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }
       });
     } else {
       // Add new user
@@ -110,8 +119,12 @@ export class UsersManagementComponent {
         error: (err: any) => {
           console.error('Failed to add user', err);
           this.loading = false;
+          this.cdr.markForCheck();
         },
-        complete: () => this.loading = false
+        complete: () => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -120,6 +133,7 @@ export class UsersManagementComponent {
   editUser(user: User): void {
     this.editingUserId = user.id!;
     this.userModel = { ...user, password: '' }; // don't send old password
+    this.cdr.markForCheck();
   }
 
   /** Delete user */
@@ -132,7 +146,10 @@ export class UsersManagementComponent {
         alert('User deleted successfully!');
         this.loadUsers();
       },
-      error: (err: any) => console.error('Failed to delete user', err)
+      error: (err: any) => {
+        console.error('Failed to delete user', err);
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -148,9 +165,10 @@ export class UsersManagementComponent {
       role: 'User',
       phonenumber: ''
     };
+    this.cdr.markForCheck();
   }
 
-  prevPage(): void { if (this.p > 1) this.p--; }
-  nextPage(): void { if (this.p < this.totalPages) this.p++; }
+  prevPage(): void { if (this.p > 1) this.p--; this.cdr.markForCheck(); }
+  nextPage(): void { if (this.p < this.totalPages) this.p++; this.cdr.markForCheck(); }
 
 }

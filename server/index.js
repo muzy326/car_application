@@ -7,8 +7,10 @@ process.on("unhandledRejection", (err) => {
 });
 
 // ------------------ ENV SETUP ------------------
+const path = require('path');
+
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+  require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 }
 
 console.log("🔥 Backend starting...");

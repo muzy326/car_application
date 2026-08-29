@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -10,13 +10,13 @@ import { AuthService } from '../../services/auth-service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './registration.html',
-  styleUrls: ['./registration.css']
+  styleUrls: ['./registration.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RegistrationComponent {
 
   loading: boolean = false;
 
-  // Model for template-driven form
   userModel = {
     firstname: '',
     lastname: '',
@@ -31,10 +31,10 @@ export class RegistrationComponent {
     @Inject(PLATFORM_ID) private platformId: Object,
     private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  // Template-driven registration submit
   register(form: NgForm) {
     if (form.invalid) {
       form.control.markAllAsTouched();
@@ -47,6 +47,7 @@ export class RegistrationComponent {
     }
 
     this.loading = true;
+    this.cdr.markForCheck();
 
     const userData = {
       firstname: this.userModel.firstname,
@@ -59,6 +60,8 @@ export class RegistrationComponent {
     this.authService.register(userData).subscribe({
       next: (res) => {
         this.loading = false;
+        this.cdr.markForCheck();
+
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('token', res.token);
           localStorage.setItem('name', res.user.firstname);
@@ -71,6 +74,8 @@ export class RegistrationComponent {
       },
       error: (err) => {
         this.loading = false;
+        this.cdr.markForCheck();
+
         if (err.status === 409) this.toastr.error('User already exists ❌');
         else this.toastr.error('Registration failed. Try again ❌');
       }

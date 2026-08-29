@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -13,7 +13,8 @@ import { getStatusBadge } from '../../../core/utils/status.util';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './my-bookings.html',
-  styleUrls: ['./my-bookings.css']
+  styleUrls: ['./my-bookings.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyBookingsComponent implements OnInit {
 
@@ -29,7 +30,10 @@ export class MyBookingsComponent implements OnInit {
   formatDate = formatDate;
   getStatusBadge = getStatusBadge;
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    private bookingService: BookingService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadBookings();
@@ -51,10 +55,12 @@ export class MyBookingsComponent implements OnInit {
         this.totalBookings = this.totalCurrent + this.totalHistory;
 
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading bookings', err);
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

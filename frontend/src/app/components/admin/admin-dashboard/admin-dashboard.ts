@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -38,7 +38,8 @@ interface ChartData {
     BarChartComponent
   ],
   templateUrl: './admin-dashboard.html',
-  styleUrls: ['./admin-dashboard.css']
+  styleUrls: ['./admin-dashboard.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminDashboardComponent implements OnInit {
 
@@ -70,7 +71,8 @@ export class AdminDashboardComponent implements OnInit {
     private carService: CarService,
     private userService: UserService,
     private bookingService: BookingService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -126,11 +128,13 @@ export class AdminDashboardComponent implements OnInit {
         }));
 
         this.loader = false;
+        this.cdr.markForCheck();
       },
 
       error: (err) => {
         console.error('Dashboard load failed', err);
         this.loader = false;
+        this.cdr.markForCheck();
       }
     });
   }

@@ -16,7 +16,7 @@
       </div>
       <!-- Decorative car card -->
       <div class="deco-card">
-        <img src="/assets/Registration.png" alt="Car"
+        <img src="/assets/car-rent.jpg" alt="Car"
              onerror="this.src='https://images.unsplash.com/photo-1543854589-9ec8a504a4b2?w=400&q=80'"
              class="deco-car-img">
       </div>
@@ -52,9 +52,11 @@
               autocomplete="email"
             >
           </div>
-          <div *ngIf="loginForm.submitted && !model.email" class="field-error">
-            <i class="bi bi-exclamation-circle me-1"></i>Email is required
-          </div>
+          @if (loginForm.submitted && !model.email) {
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle me-1"></i>Email is required
+            </div>
+          }
         </div>
 
         <!-- Password -->
@@ -78,22 +80,30 @@
               <i class="bi bi-eye"></i>
             </button>
           </div>
-          <div *ngIf="loginForm.submitted && !model.password" class="field-error">
-            <i class="bi bi-exclamation-circle me-1"></i>Password is required
-          </div>
+          @if (loginForm.submitted && !model.password) {
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle me-1"></i>Password is required
+            </div>
+          }
         </div>
 
         <!-- Error alert -->
-        <div *ngIf="loginError" class="alert-error animate-fade-up">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ loginError }}
-        </div>
+        @if (loginError) {
+          <div class="alert-error animate-fade-up">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ loginError }}
+          </div>
+        }
 
         <!-- Submit -->
         <button type="submit" class="btn-login" [disabled]="loading">
-          <span *ngIf="!loading"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</span>
-          <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
-            <span class="spinner-border spinner-border-sm"></span>Signing in...
-          </span>
+          @if (!loading) {
+            <span><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</span>
+          }
+          @if (loading) {
+            <span class="d-flex align-items-center justify-content-center gap-2">
+              <span class="spinner-border spinner-border-sm"></span>Signing in...
+            </span>
+          }
         </button>
 
         <!-- Divider -->

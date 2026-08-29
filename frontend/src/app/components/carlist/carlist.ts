@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CarService } from '../../services/car-service';
@@ -11,6 +11,7 @@ import { Car } from '../../../core/models/car.model';
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './carlist.html',
   styleUrls: ['./carlist.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CarlistComponent implements OnInit {
   cars: Car[] = [];
@@ -37,11 +38,13 @@ export class CarlistComponent implements OnInit {
           imageUrl: car.imageUrl && car.imageUrl.trim() !== '' ? car.imageUrl : 'assets/no-image.jpg'
         }));
         this.loading = false;
-        this.cd.detectChanges();
+        this.cd.markForCheck();
       },
       error: (err) => {
         console.error('API ERROR:', err);
         this.loading = false;
+        this.cd.markForCheck();
+
         if (err.status === 401) {
           alert('You are not authorized. Please login again.');
           this.router.navigate(['/login']);

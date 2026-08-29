@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CarService } from '../../../services/car-service';
 import { Car } from '../../../../core/models/car.model';
@@ -10,7 +10,8 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './car-management.html',
-  styleUrls: ['./car-management.css']
+  styleUrls: ['./car-management.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CarManagementComponent {
 
@@ -27,7 +28,7 @@ export class CarManagementComponent {
 
   carModel: Car = this.getEmptyCar();
 
-  constructor(private carService: CarService) {
+  constructor(private carService: CarService, private cdr: ChangeDetectorRef) {
     this.loadCars();
   }
 
@@ -37,7 +38,11 @@ export class CarManagementComponent {
 
   loadCars(): void {
     this.carService.getCars().subscribe({
-      next: res => { this.cars = res; this.filterCars(); },
+      next: res => {
+        this.cars = res;
+        this.filterCars();
+        this.cdr.markForCheck();
+      },
       error: err => console.error('Error loading cars:', err)
     });
   }
@@ -50,6 +55,7 @@ export class CarManagementComponent {
       (c.type ?? '').toLowerCase().includes(term)
     );
     this.p = 1;
+    this.cdr.markForCheck();
   }
 
   get pagedCars(): Car[] {
@@ -64,6 +70,7 @@ export class CarManagementComponent {
   saveCar(form: NgForm): void {
     if (form.invalid) return;
     this.loading = true;
+    this.cdr.markForCheck();
 
     const carData: Car = { ...this.carModel, price: Number(this.carModel.price), rating: Number(this.carModel.rating ?? 5) };
 
@@ -76,8 +83,16 @@ export class CarManagementComponent {
         alert(this.editingCarId ? 'Car updated!' : 'Car added!');
         this.afterSave(form);
       },
-      error: err => { console.error(err); alert(err.error?.message || 'Failed to save car'); this.loading = false; },
-      complete: () => (this.loading = false)
+      error: err => {
+        console.error(err);
+        alert(err.error?.message || 'Failed to save car');
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      complete: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -90,13 +105,21 @@ export class CarManagementComponent {
   editCar(car: Car): void {
     this.editingCarId = car.id;
     this.carModel = { ...car };
+    this.cdr.markForCheck();
   }
 
   deleteCar(id: number): void {
     if (!confirm('Are you sure?')) return;
     this.carService.deleteCar(id).subscribe({
-      next: () => { alert('Car deleted!'); this.loadCars(); },
-      error: err => { console.error('Delete error:', err); alert(err.error?.message || 'Failed to delete car'); }
+      next: () => {
+        alert('Car deleted!');
+        this.loadCars();
+      },
+      error: err => {
+        console.error('Delete error:', err);
+        alert(err.error?.message || 'Failed to delete car');
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -104,10 +127,11 @@ export class CarManagementComponent {
     this.editingCarId = null;
     this.carModel = this.getEmptyCar();
     if (form) form.resetForm(this.carModel);
+    this.cdr.markForCheck();
   }
 
-  prevPage(): void { if (this.p > 1) this.p--; }
-  nextPage(): void { if (this.p < this.totalPages) this.p++; }
+  prevPage(): void { if (this.p > 1) this.p--; this.cdr.markForCheck(); }
+  nextPage(): void { if (this.p < this.totalPages) this.p++; this.cdr.markForCheck(); }
 
   getStarsArray(rating: number = 5): boolean[] {
     return Array.from({ length: 5 }, (_, i) => i < rating);

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DatePipe, CurrencyPipe, NgClass } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 import { firstValueFrom } from 'rxjs';
@@ -8,9 +8,10 @@ import { BookingBill } from '../../../core/models/booking-bill.model';
 @Component({
   selector: 'app-booking-bill',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [DatePipe, CurrencyPipe, NgClass, RouterModule],
   templateUrl: './booking-bill.html',
-  styleUrls: ['./booking-bill.css']
+  styleUrls: ['./booking-bill.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BookingBillComponent implements OnInit {
 
@@ -20,7 +21,8 @@ export class BookingBillComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -30,6 +32,7 @@ export class BookingBillComponent implements OnInit {
     if (!bookingId) {
       this.error = 'Invalid booking ID';
       this.loading = false;
+      this.cdr.markForCheck();
       return;
     }
 
@@ -74,6 +77,8 @@ export class BookingBillComponent implements OnInit {
       console.error('Failed to load booking bill:', err);
       this.error = 'Failed to load booking details';
       this.loading = false;
+    } finally {
+      this.cdr.markForCheck();
     }
   }
 
