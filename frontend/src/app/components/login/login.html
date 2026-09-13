@@ -88,18 +88,18 @@
         </div>
 
         <!-- Error alert -->
-        @if (loginError) {
+        @if (loginError()) {
           <div class="alert-error animate-fade-up">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ loginError }}
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ loginError() }}
           </div>
         }
 
         <!-- Submit -->
-        <button type="submit" class="btn-login" [disabled]="loading">
-          @if (!loading) {
+        <button type="submit" class="btn-login" [disabled]="loading()">
+          @if (!loading()) {
             <span><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</span>
           }
-          @if (loading) {
+          @if (loading()) {
             <span class="d-flex align-items-center justify-content-center gap-2">
               <span class="spinner-border spinner-border-sm"></span>Signing in...
             </span>

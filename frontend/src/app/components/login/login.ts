@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -14,8 +14,8 @@ import { AuthService } from '../../services/auth-service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
-  loading = false;
-  loginError = '';
+  loading = signal(false);
+  loginError = signal('');
 
   model = {
     email: '',
@@ -27,8 +27,7 @@ export class LoginComponent {
     private authService: AuthService,
     private toastr: ToastrService,
     private router: Router,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private route: ActivatedRoute
   ) {
     // Auto redirect if already logged in — guarded so it never runs server-side
     if (isPlatformBrowser(this.platformId) && this.authService.isLoggedIn()) {
@@ -42,18 +41,12 @@ export class LoginComponent {
       return;
     }
 
-    this.loginError = '';
-    this.cdr.markForCheck();
-
-    setTimeout(() => {
-      this.loading = true;
-      this.cdr.markForCheck();
-    });
+    this.loginError.set('');
+    this.loading.set(true);
 
     this.authService.login(this.model.email, this.model.password).subscribe({
       next: (res) => {
-        this.loading = false;
-        this.cdr.markForCheck();
+        this.loading.set(false);
         this.toastr.success(`Welcome ${res.user.name}`);
 
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
@@ -61,13 +54,11 @@ export class LoginComponent {
       },
 
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
 
-        if (err.status === 401) this.loginError = 'Incorrect password';
-        else if (err.status === 404) this.loginError = 'User not found';
-        else this.loginError = 'Login failed. Please try again.';
-
-        this.cdr.markForCheck();
+        if (err.status === 401) this.loginError.set('Incorrect password');
+        else if (err.status === 404) this.loginError.set('User not found');
+        else this.loginError.set('Login failed. Please try again.');
       }
     });
   }
